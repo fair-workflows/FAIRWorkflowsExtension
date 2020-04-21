@@ -21,6 +21,8 @@ export async function requestAPI<T>(
     endPoint
   );
 
+  console.log('requestAPI called with ' + endPoint + ' ' + init + ', ' + requestUrl);
+
   let response: Response;
   try {
     response = await ServerConnection.makeRequest(requestUrl, init, settings);

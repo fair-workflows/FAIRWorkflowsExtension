@@ -11,16 +11,17 @@ class SearchHandler(APIHandler):
     # Jupyter server
     @tornado.web.authenticated
     def get(self):
-        self.finish(json.dumps({
-            "data": "This is /FAIRWorkflowsExtension/get_example endpoint!"
-        }))
+        ret = json.dumps({
+            "data": "This is /FAIRWorkflowsExtension/nanosearch endpoint!"})
+        print("SearchHandler called! Return string = ", ret)
+        self.finish(ret)
 
 
-class SearchHandler(IPythonHandler):
-    """
-    Nanopublish cell
-    """
-    async def get(self):
+#class SearchHandler(IPythonHandler):
+#    """
+#    Nanopublish cell
+#    """
+#    async def get(self):
 #        catalog_url = self.get_argument('catalog_url')
 #        self.set_header('Content-Type', 'application/json')
 #        c = ThreddsConfig(config=self.config)
@@ -39,9 +40,10 @@ class SearchHandler(IPythonHandler):
 #                "url": e.url
 #            }
 #            self.finish(json.dumps(error))
-        self.finish(json.dumps({'Search': 'example'}))
+#        self.finish(json.dumps({'Search': 'example'}))
 
 
 def search_handler(base_url='/'):
     endpoint = url_path_join(base_url, '/nanosearch')
+    print('endpoint', endpoint)
     return endpoint, SearchHandler
