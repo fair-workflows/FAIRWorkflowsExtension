@@ -1,3 +1,5 @@
+yarn.lock
+
 *.bundle.*
 lib/
 node_modules/
