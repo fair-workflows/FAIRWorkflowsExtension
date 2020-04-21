@@ -1,5 +1,6 @@
 from ._version import __version__ 
-from .handlers import setup_handlers
+
+from .search import search_handler
 
 
 def _jupyter_server_extension_paths():
@@ -8,13 +9,17 @@ def _jupyter_server_extension_paths():
     }]
 
 
-def load_jupyter_server_extension(lab_app):
-    """Registers the API handler to receive HTTP requests from the frontend extension.
-
-    Parameters
-    ----------
-    lab_app: jupyterlab.labapp.LabApp
-        JupyterLab application instance
+def load_jupyter_server_extension(nb_server_app):
     """
-    setup_handlers(lab_app.web_app)
-    lab_app.log.info("Registered HelloWorld extension at URL path /FAIRWorkflowsExtension")
+    Called when the extension is loaded.
+    Args:
+        nb_server_app (NotebookWebApplication): handle to the Notebook webserver instance.
+    """
+    web_app = nb_server_app.web_app
+    base_url = web_app.settings['base_url']
+    handlers = [
+        search_handler(base_url) 
+    ]
+    web_app.add_handlers('.*$', handlers)
+
+    nb_server_app.log.info("Registering FAIRWorkflowsExtension handlers")

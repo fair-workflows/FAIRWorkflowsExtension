@@ -14,7 +14,7 @@ const extension: JupyterFrontEndPlugin<void> = {
   activate: (app: JupyterFrontEnd) => {
     console.log('JupyterLab extension FAIRWorkflowsExtension is activated!');
 
-    requestAPI<any>('get_example')
+    requestAPI<any>('nanosearch')
       .then(data => {
         console.log(data);
       })
