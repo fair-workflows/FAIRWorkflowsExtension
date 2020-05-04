@@ -24,6 +24,9 @@ const extension: JupyterFrontEndPlugin<void> = {
         );
       });
   }
+
+//  let buttonExtension = new RunAllCellsButtonExtension();
+//  app.docRegistry.addWidgetExtension('Notebook', buttonExtension);
 };
 
 export default extension;

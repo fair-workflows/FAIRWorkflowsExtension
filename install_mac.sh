@@ -1,5 +1,9 @@
+# Install fair workflows dependency
+python3 -m pip install git+git://github.com/fair-workflows/FAIRWorkbench@fairworkflows#subdirectory=fairworkflows || exit 1
+
 # Install server extension
 python3 -m pip install -e . || exit 1
+
 # Register server extension
 jupyter-serverextension enable --py FAIRWorkflowsExtension || exit 1
 

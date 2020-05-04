@@ -2,7 +2,6 @@ from ._version import __version__
 from .search import search_handler
 from notebook.utils import url_path_join
 
-
 def _jupyter_server_extension_paths():
     return [{
         "module": "FAIRWorkflowsExtension"
