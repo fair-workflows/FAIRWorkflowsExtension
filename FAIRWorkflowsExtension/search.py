@@ -12,7 +12,13 @@ class SearchHandler(APIHandler):
     @tornado.web.authenticated
     def get(self):
 #        search_results = fairworkflows.Nanopub.search() 
-        print(self.get_argument('search_str'))
+        search_str = self.get_argument('search_str')
+        print('Searching for', search_str)
+
+        results = fairworkflows.Nanopub.search(search_str)
+
+        print(results)
+
         ret = json.dumps({"lol": "lol"})
 #        ret = json.dumps({
 #            "search_results": search_results})
