@@ -1,6 +1,23 @@
-import { URLExt } from '@jupyterlab/coreutils';
+//import * as React from 'react';
+//import * as ReactDOM from 'react-dom';
 
+import { URLExt } from '@jupyterlab/coreutils';
 import { ServerConnection } from '@jupyterlab/services';
+
+
+import {
+  ToolbarButton
+} from '@jupyterlab/apputils';
+
+import {
+  IDisposable, DisposableDelegate
+} from '@lumino/disposable';
+
+import {
+  NotebookPanel, INotebookModel
+} from '@jupyterlab/notebook';
+
+import { DocumentRegistry } from '@jupyterlab/docregistry';
 
 /**
  * Call the API extension
@@ -38,3 +55,35 @@ export async function requestAPI<T>(
 
     return data;
 }
+
+export class FAIRWorkbenchWidget implements DocumentRegistry.IWidgetExtension<NotebookPanel, INotebookModel> {
+  /**
+   * Create a new extension object.
+   */
+  createNew(panel: NotebookPanel, context: DocumentRegistry.IContext<INotebookModel>): IDisposable {
+    let callback = () => {
+      requestAPI<any>('nanosearch?search_str=fair')
+        .then(data => {
+          console.log(data);
+        })
+        .catch(reason => {
+          console.error('The FAIRWorkflowsExtension server extension appears to be missing.\n${reason}');
+      });
+
+    };
+    let button = new ToolbarButton({
+      className: 'myButton',
+      iconClass: 'jp-NotebookIcon',
+      onClick: callback,
+      tooltip: 'FAIR Search'
+    });
+
+    panel.toolbar.insertItem(0, 'runAll', button);
+    return new DisposableDelegate(() => {
+      button.dispose();
+    });
+  }
+}
+
+
+
