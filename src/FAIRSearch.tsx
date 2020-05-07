@@ -7,7 +7,41 @@ import { showErrorMessage } from '@jupyterlab/apputils';
 
 import { INotebookTracker } from '@jupyterlab/notebook';
 
-//import { ServerConnection } from '@jupyterlab/services';
+import { URLExt } from '@jupyterlab/coreutils';
+import { ServerConnection } from '@jupyterlab/services';
+
+
+export async function requestAPI<T>(
+    endPoint = '',
+    init: RequestInit = {}
+): Promise<T> {
+    // Make request to Jupyter API
+    const settings = ServerConnection.makeSettings();
+    const requestUrl = URLExt.join(
+            settings.baseUrl,
+            'FAIRWorkflowsExtension', // API Namespace
+            endPoint
+            );
+
+    console.log('requestAPI called with ' + endPoint + ' ' + init + ', ' + requestUrl);
+
+    let response: Response;
+    try {
+        response = await ServerConnection.makeRequest(requestUrl, init, settings);
+    } catch (error) {
+        throw new ServerConnection.NetworkError(error);
+    }
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new ServerConnection.ResponseError(response, data.message);
+    }
+
+    return data;
+}
+
+
 
 export interface IProps {
     open(openas: string): void;
@@ -27,12 +61,16 @@ class DataExplorer extends React.Component<IProps, IState> {
         };        
     }
 
+    onDatasetClick = (event: any) => {
+        console.log(event);
+    }
 
     render() {
         console.log('Rendering DataExplorer')
         return (
             <div>
                 <h1>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</h1>
+                <button type="button" onClick={this.onDatasetClick}>Search!</button> 
             </div>
         );
     }
@@ -64,7 +102,15 @@ export class TestWidget extends Widget {
             return;
         }
         const notebook = this.tracker.currentWidget.content;
-        console.log(openas, notebook)
+        console.log(openas, notebook);
+
+        requestAPI<any>('nanosearch?search_str=fair')
+            .then(data => {
+                console.log(data);
+            })
+            .catch(reason => {
+                console.error('The FAIRWorkflowsExtension server extension appears to be missing.\n${reason}');
+            });
     }
 
 }
