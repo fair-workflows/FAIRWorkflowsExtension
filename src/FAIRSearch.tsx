@@ -46,6 +46,15 @@ class FAIRSearch extends React.Component<IProps, IState> {
 
     search = () => {
         console.log('searching:', this.state.searchtext);
+
+        requestAPI<any>('nanosearch', {search_str: this.state.searchtext})
+            .then(data => {
+                console.log(data);
+            })
+            .catch(reason => {
+                console.error('Search failed:\n', reason);
+            });
+
     }
 
     render() {
@@ -87,30 +96,24 @@ export class FAIRWorkflowsWidget extends Widget {
         }
         const notebook = this.tracker.currentWidget.content;
         console.log(openas, notebook);
-
-        requestAPI<any>('nanosearch?search_str=fair')
-            .then(data => {
-                console.log(data);
-            })
-            .catch(reason => {
-                console.error('The FAIRWorkflowsExtension server extension appears to be missing.\n${reason}');
-            });
     }
 
 }
 
 export async function requestAPI<T>(
     endPoint = '',
+    query = {},
     init: RequestInit = {}
 ): Promise<T> {
     // Make request to Jupyter API
     const settings = ServerConnection.makeSettings();
+    const queryString = (new URLSearchParams(query)).toString();
     const requestUrl = URLExt.join(
             settings.baseUrl,
             'FAIRWorkflowsExtension', // API Namespace
-            endPoint
-            );
-
+            endPoint,
+            ) + '?' + queryString;
+    
     console.log('requestAPI called with ' + endPoint + ' ' + init + ', ' + requestUrl);
 
     let response: Response;

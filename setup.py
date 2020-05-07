@@ -24,7 +24,7 @@ lab_path = os.path.join(HERE, name, "labextension")
 
 # Representative files that should exist after a successful build
 jstargets = [
-    os.path.join(HERE, "lib", "FAIRWorkflowsExtension.js"),
+    os.path.join(HERE, "lib", "FAIRSearch.js"),
 ]
 
 package_data_spec = {
