@@ -23,7 +23,7 @@ export interface IState {
 }
 
 
-class DataExplorer extends React.Component<IProps, IState> {
+class FAIRSearch extends React.Component<IProps, IState> {
     debounced_search: ReturnType<typeof debounce>;
     constructor(props: IProps) {
         super(props);
@@ -49,7 +49,7 @@ class DataExplorer extends React.Component<IProps, IState> {
     }
 
     render() {
-        console.log('Rendering DataExplorer')
+        console.log('Rendering FAIRSearch component')
         return (
             <div>
                 <h3>FAIR Search</h3>
@@ -60,7 +60,7 @@ class DataExplorer extends React.Component<IProps, IState> {
     }
 }
 
-export class TestWidget extends Widget {
+export class FAIRWorkflowsWidget extends Widget {
     tracker: INotebookTracker;
     constructor(tracker: INotebookTracker) {
         super();
@@ -74,10 +74,10 @@ export class TestWidget extends Widget {
     }
 
     onUpdateRequest() {
-        console.log('TestWidget onUpdateRequest()');
+        console.log('FAIRWorkflowsWidget onUpdateRequest()');
 
         ReactDOM.unmountComponentAtNode(this.node);
-        ReactDOM.render(<DataExplorer open={this.onOpen} />, this.node);        
+        ReactDOM.render(<FAIRSearch open={this.onOpen} />, this.node);        
     }
 
     onOpen = (openas: string) => {

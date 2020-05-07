@@ -7,7 +7,7 @@ import {
 
 import { INotebookTracker } from '@jupyterlab/notebook';
 
-import { TestWidget } from './FAIRSearch'
+import { FAIRWorkflowsWidget } from './FAIRSearch'
 
 
 /**
@@ -26,10 +26,10 @@ function activate(app: JupyterFrontEnd, tracker: INotebookTracker, restorer: ILa
 
     console.log('Loading FAIRWorkbenchWidget...');
 
-    const test = new TestWidget(tracker);
+    const widget = new FAIRWorkflowsWidget(tracker);
 
-    restorer.add(test, test.id);
-    app.shell.add(test, 'left', { rank: 700});
+    restorer.add(widget, widget.id);
+    app.shell.add(widget, 'left', { rank: 700});
 
 
     console.log('...FAIRWorkbenchWidget loaded');
