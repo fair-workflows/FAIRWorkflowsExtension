@@ -6,7 +6,7 @@ import { ServerConnection } from '@jupyterlab/services';
 
 
 import {
-  ToolbarButton
+  ToolbarButton, InputDialog
 } from '@jupyterlab/apputils';
 
 import {
@@ -18,6 +18,50 @@ import {
 } from '@jupyterlab/notebook';
 
 import { DocumentRegistry } from '@jupyterlab/docregistry';
+
+import { FAIRSearch } from './FAIRSearch';
+
+
+export class FAIRWorkbenchWidget implements DocumentRegistry.IWidgetExtension<NotebookPanel, INotebookModel> {
+  /**
+   * Create a new extension object.
+   */
+  createNew(panel: NotebookPanel, context: DocumentRegistry.IContext<INotebookModel>): IDisposable {
+    let callback = () => {
+      requestAPI<any>('nanosearch?search_str=fair')
+        .then(data => {
+          console.log(data);
+        })
+        .catch(reason => {
+          console.error('The FAIRWorkflowsExtension server extension appears to be missing.\n${reason}');
+      });
+
+    };
+
+
+    // Request a text
+    InputDialog.getText({ title: 'Provide a text' }).then(value => {
+      console.log('text ' + value.value);
+    });
+
+    let button = new ToolbarButton({
+      className: 'myButton',
+      iconClass: 'jp-NotebookIcon',
+      onClick: callback,
+      tooltip: 'FAIR Search'
+    });
+
+    let search = new FAIRSearch('Hello')
+
+    console.log(search)
+
+    panel.toolbar.insertItem(0, 'runAll', button);
+    return new DisposableDelegate(() => {
+      button.dispose();
+    });
+  }
+}
+
 
 /**
  * Call the API extension
@@ -55,35 +99,4 @@ export async function requestAPI<T>(
 
     return data;
 }
-
-export class FAIRWorkbenchWidget implements DocumentRegistry.IWidgetExtension<NotebookPanel, INotebookModel> {
-  /**
-   * Create a new extension object.
-   */
-  createNew(panel: NotebookPanel, context: DocumentRegistry.IContext<INotebookModel>): IDisposable {
-    let callback = () => {
-      requestAPI<any>('nanosearch?search_str=fair')
-        .then(data => {
-          console.log(data);
-        })
-        .catch(reason => {
-          console.error('The FAIRWorkflowsExtension server extension appears to be missing.\n${reason}');
-      });
-
-    };
-    let button = new ToolbarButton({
-      className: 'myButton',
-      iconClass: 'jp-NotebookIcon',
-      onClick: callback,
-      tooltip: 'FAIR Search'
-    });
-
-    panel.toolbar.insertItem(0, 'runAll', button);
-    return new DisposableDelegate(() => {
-      button.dispose();
-    });
-  }
-}
-
-
 

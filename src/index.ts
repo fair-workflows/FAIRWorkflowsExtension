@@ -1,27 +1,45 @@
 import {
-  JupyterFrontEnd,
-  JupyterFrontEndPlugin
+    JupyterFrontEnd,
+    JupyterFrontEndPlugin,
+    ILayoutRestorer
 } from '@jupyterlab/application';
 
+
+import { INotebookTracker } from '@jupyterlab/notebook';
+
+//import { ReactWidget } from '@jupyterlab/apputils';
+
+
 import { FAIRWorkbenchWidget } from './FAIRWorkflowsExtension';
+import { TestWidget } from './FAIRSearch'
+
 
 /**
  * Initialization data for the FAIRWorkflowsExtension extension.
  */
 const extension: JupyterFrontEndPlugin<void> = {
-  activate,
-  id: 'FAIRWorkflowsExtension',
-  autoStart: true
+    activate,
+    id: 'FAIRWorkflowsExtension',
+    autoStart: true,
+    requires: [INotebookTracker, ILayoutRestorer]
 };
 
 
-function activate(app: JupyterFrontEnd) {
-  console.log('JupyterLab extension FAIRWorkflowsExtension is activated!');
+function activate(app: JupyterFrontEnd, tracker: INotebookTracker, restorer: ILayoutRestorer) {
+    console.log('JupyterLab extension FAIRWorkflowsExtension is activated!');
 
-  console.log('Loading FAIRWorkbenchWidget...');
-  app.docRegistry.addWidgetExtension('Notebook', new FAIRWorkbenchWidget());
+    console.log('Loading FAIRWorkbenchWidget...');
+    app.docRegistry.addWidgetExtension('FAIRWorkflowsWidget', new FAIRWorkbenchWidget());
 
-  console.log('...FAIRWorkbenchWidget loaded');
+
+    const test = new TestWidget(tracker);
+//    const widget = ReactWidget.create(test);
+
+    restorer.add(test, 'fairsearch');
+    app.shell.add(test, 'left', { rank: 700});
+
+
+    console.log('...FAIRWorkbenchWidget loaded');
 }
 
 
