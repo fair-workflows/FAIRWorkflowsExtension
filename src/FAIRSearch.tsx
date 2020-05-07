@@ -10,6 +10,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { URLExt } from '@jupyterlab/coreutils';
 import { ServerConnection } from '@jupyterlab/services';
 
+import { debounce } from "ts-debounce";
 
 export async function requestAPI<T>(
     endPoint = '',
@@ -53,12 +54,14 @@ export interface IState {
 
 
 class DataExplorer extends React.Component<IProps, IState> {
-
+    debounced_search: ReturnType<typeof debounce>;
     constructor(props: IProps) {
         super(props);
         this.state = {
             source: 'nanopub'
-        };        
+        };
+        
+        this.debounced_search = debounce(this.search, 500);
     }
 
     onDatasetClick = (event: any) => {
@@ -67,6 +70,10 @@ class DataExplorer extends React.Component<IProps, IState> {
 
 
     onSearchEntry = () => {
+        this.debounced_search();
+    }
+
+    search = () => {
         console.log('searching:');
     }
 
