@@ -19,8 +19,6 @@ import {
 
 import { DocumentRegistry } from '@jupyterlab/docregistry';
 
-import { FAIRSearch } from './FAIRSearch';
-
 
 export class FAIRWorkbenchWidget implements DocumentRegistry.IWidgetExtension<NotebookPanel, INotebookModel> {
   /**
@@ -50,10 +48,6 @@ export class FAIRWorkbenchWidget implements DocumentRegistry.IWidgetExtension<No
       onClick: callback,
       tooltip: 'FAIR Search'
     });
-
-    let search = new FAIRSearch('Hello')
-
-    console.log(search)
 
     panel.toolbar.insertItem(0, 'runAll', button);
     return new DisposableDelegate(() => {

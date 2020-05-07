@@ -1,5 +1,7 @@
 yarn.lock
 
+*.ipynb
+
 *.bundle.*
 lib/
 node_modules/
