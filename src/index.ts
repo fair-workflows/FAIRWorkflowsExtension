@@ -7,10 +7,6 @@ import {
 
 import { INotebookTracker } from '@jupyterlab/notebook';
 
-//import { ReactWidget } from '@jupyterlab/apputils';
-
-
-import { FAIRWorkbenchWidget } from './FAIRWorkflowsExtension';
 import { TestWidget } from './FAIRSearch'
 
 
@@ -29,13 +25,10 @@ function activate(app: JupyterFrontEnd, tracker: INotebookTracker, restorer: ILa
     console.log('JupyterLab extension FAIRWorkflowsExtension is activated!');
 
     console.log('Loading FAIRWorkbenchWidget...');
-    app.docRegistry.addWidgetExtension('FAIRWorkflowsWidget', new FAIRWorkbenchWidget());
-
 
     const test = new TestWidget(tracker);
-//    const widget = ReactWidget.create(test);
 
-    restorer.add(test, 'fairsearch');
+    restorer.add(test, test.id);
     app.shell.add(test, 'left', { rank: 700});
 
 

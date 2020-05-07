@@ -1,7 +1,9 @@
 import * as React from 'react';
-//import * as ReactDOM from 'react-dom';
+import * as ReactDOM from 'react-dom';
 
-import { ReactWidget, showErrorMessage } from '@jupyterlab/apputils';
+import { Widget } from "@lumino/widgets";
+
+import { showErrorMessage } from '@jupyterlab/apputils';
 
 import { INotebookTracker } from '@jupyterlab/notebook';
 
@@ -15,60 +17,45 @@ export interface IState {
     source: 'nanopub' | 'workflowhub';
 }
 
-//export class FAIRSearch extends React.Component<IProps, IState> {
-//
-//    constructor(props: IProps) {
-//        super(props);
-//        this.state = {
-//            source: 'nanopub'
-//        };        
-//    }
-//
-//    setNanopubsAsSource = () => {
-//        this.setState({source: 'nanopub'});
-//    }
-//
-//    render() {
-//        const style = {
-//            backgroundColor: '#545b62',
-//            color: '#fff',
-//        };
-//
-//        return (
-//            <div>
-//                <div className="jp-Toolbar">
-//                    <div className="jp-Toolbar-item jp-ToolbarButton">
-//                        <button
-//                            className="jp-ToolbarButtonComponent"
-//                            disabled={this.state.source === 'nanopub'}
-//                            onClick={this.setNanopubsAsSource}
-//                            style={this.state.source === 'nanopub' ? style : {}}
-//                        >
-//                            FAIR Search
-//                        </button>
-//                    </div>
-//                </div>
-//            </div>
-//        );
-//    }
-//}
+
+class DataExplorer extends React.Component<IProps, IState> {
+
+    constructor(props: IProps) {
+        super(props);
+        this.state = {
+            source: 'nanopub'
+        };        
+    }
 
 
+    render() {
+        console.log('Rendering DataExplorer')
+        return (
+            <div>
+                <h1>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</h1>
+            </div>
+        );
+    }
+}
 
-export class TestWidget extends ReactWidget {
+export class TestWidget extends Widget {
     tracker: INotebookTracker;
     constructor(tracker: INotebookTracker) {
         super();
-        this.tracker = tracker
-        this.title.label = 'TestWidget'
+        this.tracker = tracker;
+        this.title.label = 'TestWidget';
+        this.title.caption = 'FAIR Workbench';
         this.id = 'testwidget';
+        this.addClass('jp-fairwidget')
 
         this.update();
     }
 
     onUpdateRequest() {
-        console.log('RRRRRRRRR');
-        this.render();
+        console.log('TestWidget onUpdateRequest()');
+
+        ReactDOM.unmountComponentAtNode(this.node);
+        ReactDOM.render(<DataExplorer open={this.onOpen} />, this.node);        
     }
 
     onOpen = (openas: string) => {
@@ -80,22 +67,4 @@ export class TestWidget extends ReactWidget {
         console.log(openas, notebook)
     }
 
-    render() {
-//        ReactDOM.unmountComponentAtNode(this.node);
-//        ReactDOM.render(<FAIRSearch open={this.onOpen} />, this.node);        
-        return (
-            <div>
-                <div className="jp-Toolbar">
-                    <div className="jp-Toolbar-item jp-ToolbarButton">
-                        <button
-                            className="jp-ToolbarButtonComponent"
-                            disabled={false}
-                        >
-                            FAIR Search
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
-    }
 }
