@@ -20,6 +20,7 @@ export interface IProps {
 export interface IState {
     source: 'nanopub' | 'workflowhub';
     searchtext: string;
+    resultsjson: any;
 }
 
 
@@ -29,7 +30,8 @@ class FAIRSearch extends React.Component<IProps, IState> {
         super(props);
         this.state = {
             source: 'nanopub',
-            searchtext: ''
+            searchtext: '',
+            resultsjson: []
         };
         
         this.debounced_search = debounce(this.search, 500);
@@ -49,7 +51,7 @@ class FAIRSearch extends React.Component<IProps, IState> {
 
         requestAPI<any>('nanosearch', {search_str: this.state.searchtext})
             .then(data => {
-                console.log(data);
+                this.setState({resultsjson: data});
             })
             .catch(reason => {
                 console.error('Search failed:\n', reason);
@@ -59,12 +61,27 @@ class FAIRSearch extends React.Component<IProps, IState> {
 
     render() {
         console.log('Rendering FAIRSearch component')
+        
+        const injectors = this.state.resultsjson.map( (c: any) => (
+            <option key={c.np} value={c.date}>{c.v}</option>
+        ));
+
+        console.log({injectors});
+
         return (
             <div>
-                <h3>FAIR Search</h3>
-                <input type="text" id="searchentry" name="searchentry" onChange={this.onSearchEntry} value={this.state.searchtext} />
-                <button type="button" onClick={this.onDatasetClick}>Search!</button> 
+                <div>
+                    <h3>FAIR Search</h3>
+                    <input type="text" id="searchentry" name="searchentry" onChange={this.onSearchEntry} value={this.state.searchtext} />
+                    <button type="button" onClick={this.onDatasetClick}>Search!</button>
+                </div>
+                <div>
+                    <select>
+                        {injectors}
+                    </select>
+                </div>
             </div>
+
         );
     }
 }
