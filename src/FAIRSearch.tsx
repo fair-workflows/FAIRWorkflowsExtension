@@ -65,11 +65,17 @@ class DataExplorer extends React.Component<IProps, IState> {
         console.log(event);
     }
 
+
+    onSearchEntry = () => {
+        console.log('searching:');
+    }
+
     render() {
         console.log('Rendering DataExplorer')
         return (
             <div>
-                <h1>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</h1>
+                <h3>FAIR Search</h3>
+                <input type="text" id="searchentry" name="searchentry" onChange={this.onSearchEntry} />
                 <button type="button" onClick={this.onDatasetClick}>Search!</button> 
             </div>
         );
