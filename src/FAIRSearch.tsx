@@ -26,9 +26,10 @@ export class NanopubResult extends React.Component<INanopubProps, {}> {
     }
     render() {
         return (
-            <li key={this.props.np} title={this.props.v}>
-                <span className="jp-DirListing-item jp-DirListing-itemText" onClick={this.onClick}>
-                    {this.props.v}
+            <li key={this.props.np} title={this.props.np}>
+                <span className="jp-DirListing-item" onClick={this.onClick}>
+                    <p>{this.props.v}</p>
+                    <p>{this.props.date}</p>
                 </span>
             </li>
         );
@@ -37,7 +38,7 @@ export class NanopubResult extends React.Component<INanopubProps, {}> {
 
 
 export interface IProps {
-    open(openas: string): void;
+    injectNanopubCode(np: string): void;
 }
 
 export interface IState {
@@ -61,7 +62,8 @@ class FAIRSearch extends React.Component<IProps, IState> {
     }
 
     onResultClick = (np: string) => {
-        console.log("User selected:", np)
+        console.log("User selected:", np);
+        this.props.injectNanopubCode(np);
     }
 
     onSearchEntry = (event: any) => {
@@ -97,8 +99,8 @@ class FAIRSearch extends React.Component<IProps, IState> {
                     <h3>FAIR Search</h3>
                     <input type="text" id="searchentry" name="searchentry" onChange={this.onSearchEntry} value={this.state.searchtext} />
                 </div>
-                <div>
-                    <ul>
+                <div className="p-Widget jp-DirListing">
+                    <ul className="jp-DirListing-content">
                         {nanopubResults}
                     </ul>
                 </div>
@@ -125,16 +127,16 @@ export class FAIRWorkflowsWidget extends Widget {
         console.log('FAIRWorkflowsWidget onUpdateRequest()');
 
         ReactDOM.unmountComponentAtNode(this.node);
-        ReactDOM.render(<FAIRSearch open={this.onOpen} />, this.node);        
+        ReactDOM.render(<FAIRSearch injectNanopubCode={this.injectNanopubCode} />, this.node);        
     }
 
-    onOpen = (openas: string) => {
+    injectNanopubCode = (np: string) => {
         if (!this.tracker.currentWidget) {
-            showErrorMessage('Unable to inject cell without an active notebook', {});
+            showErrorMessage('Cannot inject code into cell without an active notebook', {});
             return;
         }
         const notebook = this.tracker.currentWidget.content;
-        console.log(openas, notebook);
+        console.log(np, notebook);
     }
 
 }
