@@ -21,12 +21,13 @@ module.exports = {
     '@typescript-eslint/no-namespace': 'off',
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/quotes': [
-      'error',
+      'warn',
       'single',
       { avoidEscape: true, allowTemplateLiterals: false }
     ],
     curly: ['error', 'all'],
     eqeqeq: 'error',
-    'prefer-arrow-callback': 'error'
+    'prefer-arrow-callback': 'error',
+    "indent": ["warn", 4]
   }
 };
