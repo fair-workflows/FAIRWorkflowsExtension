@@ -13,6 +13,29 @@ import { ServerConnection } from '@jupyterlab/services';
 import { debounce } from "ts-debounce";
 
 
+export interface INanopubProps {
+    np: string;
+    v: string;
+    date: string;
+    onClick(np: string): void;
+}
+
+export class NanopubResult extends React.Component<INanopubProps, {}> {
+    onClick = () => {
+        this.props.onClick(this.props.np);
+    }
+    render() {
+        return (
+            <li key={this.props.np} title={this.props.v}>
+                <span className="jp-DirListing-item jp-DirListing-itemText" onClick={this.onClick}>
+                    {this.props.v}
+                </span>
+            </li>
+        );
+    }
+}
+
+
 export interface IProps {
     open(openas: string): void;
 }
@@ -37,8 +60,8 @@ class FAIRSearch extends React.Component<IProps, IState> {
         this.debounced_search = debounce(this.search, 500);
     }
 
-    onDatasetClick = (event: any) => {
-        console.log(event);
+    onResultClick = (np: string) => {
+        console.log("User selected:", np)
     }
 
     onSearchEntry = (event: any) => {
@@ -62,23 +85,22 @@ class FAIRSearch extends React.Component<IProps, IState> {
     render() {
         console.log('Rendering FAIRSearch component')
         
-        const injectors = this.state.resultsjson.map( (c: any) => (
-            <option key={c.np} value={c.date}>{c.v}</option>
+        const nanopubResults = this.state.resultsjson.map( (c: any) => (
+            <NanopubResult np={c.np} v={c.v} date={c.date} onClick={this.onResultClick} />
         ));
 
-        console.log({injectors});
+        console.log({nanopubResults});
 
         return (
             <div>
                 <div>
                     <h3>FAIR Search</h3>
                     <input type="text" id="searchentry" name="searchentry" onChange={this.onSearchEntry} value={this.state.searchtext} />
-                    <button type="button" onClick={this.onDatasetClick}>Search!</button>
                 </div>
                 <div>
-                    <select>
-                        {injectors}
-                    </select>
+                    <ul>
+                        {nanopubResults}
+                    </ul>
                 </div>
             </div>
 
