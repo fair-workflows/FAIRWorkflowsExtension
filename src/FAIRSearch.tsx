@@ -40,7 +40,7 @@ export class SearchResult extends React.Component<ISearchResultsProps, {}> {
 
 
 export interface IProps {
-    injectNanopubCode(np: string): void;
+    injectCode(uri: string, source: string): void;
 }
 
 export interface IState {
@@ -63,9 +63,9 @@ class FAIRSearch extends React.Component<IProps, IState> {
         this.debounced_search = debounce(this.search, 500);
     }
 
-    onResultClick = (np: string) => {
-        console.log("User selected:", np);
-        this.props.injectNanopubCode(np);
+    onResultClick = (uri: string) => {
+        console.log("User selected:", uri);
+        this.props.injectCode(uri, this.state.source);
     }
 
     onSearchEntry = (event: any) => {
@@ -160,23 +160,28 @@ export class FAIRWorkflowsWidget extends Widget {
         console.log('FAIRWorkflowsWidget onUpdateRequest()');
 
         ReactDOM.unmountComponentAtNode(this.node);
-        ReactDOM.render(<FAIRSearch injectNanopubCode={this.injectNanopubCode} />, this.node);        
+        ReactDOM.render(<FAIRSearch injectCode={this.injectCode} />, this.node);        
     }
 
-    injectNanopubCode = (np: string) => {
+    injectCode = (uri: string, source: string) => {
         if (!this.tracker.currentWidget) {
             showErrorMessage('Cannot inject code into cell without an active notebook', {});
             return;
         }
         const notebook = this.tracker.currentWidget.content;
-        console.log(np, notebook);
+        console.log(uri, notebook);
 
         const model = notebook.model;
         if (model.readOnly) {
             showErrorMessage('Unable to inject cell into read-only notebook', {});
         }
 
-        let code = "np = Nanopub.fetch('" + np + "')\nprint(np)";
+        let code = '';
+        if (source === 'nanopub') {
+            code = "np = Nanopub.fetch('" + uri + "')\nprint(np)";
+        } else if (source === 'workflowhub') {
+            code = "wf = Workflowhub.fetch('" + uri + "')\nprint(wf)";
+        }
 
         const activeCellIndex = notebook.activeCellIndex;
         const cell = new CodeCellModel({
