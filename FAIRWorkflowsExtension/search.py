@@ -7,7 +7,7 @@ import tornado
 
 import fairworkflows
 
-class SearchHandler(APIHandler):
+class NanopubSearchHandler(APIHandler):
 
     @tornado.web.authenticated
     def get(self):
@@ -20,8 +20,25 @@ class SearchHandler(APIHandler):
         ret = json.dumps(results)
         self.finish(ret)
 
-
-def search_handler(base_url='/'):
+def nanopub_search_handler(base_url='/'):
     endpoint = url_path_join(base_url, '/nanosearch')
-    print('endpoint', endpoint)
-    return endpoint, SearchHandler
+    return endpoint, NanopubSearchHandler
+
+
+class WorkflowhubSearchHandler(APIHandler):
+
+    @tornado.web.authenticated
+    def get(self):
+
+        search_str = self.get_argument('search_str')
+        print('Searching for', search_str)
+
+        results = fairworkflows.Workflowhub.search(search_str)
+
+        ret = json.dumps(results)
+        self.finish(ret)
+
+
+def workflowhub_search_handler(base_url='/'):
+    endpoint = url_path_join(base_url, '/workflowhub')
+    return endpoint, WorkflowhubSearchHandler

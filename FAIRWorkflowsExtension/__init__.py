@@ -1,5 +1,5 @@
 from ._version import __version__ 
-from .search import search_handler
+from .search import nanopub_search_handler, workflowhub_search_handler
 from notebook.utils import url_path_join
 
 def _jupyter_server_extension_paths():
@@ -17,10 +17,10 @@ def load_jupyter_server_extension(nb_server_app):
     web_app = nb_server_app.web_app
     base_url = url_path_join(web_app.settings['base_url'], 'FAIRWorkflowsExtension')
     handlers = [
-        search_handler(base_url) 
+        nanopub_search_handler(base_url),
+        workflowhub_search_handler(base_url)
     ]
-    print('base_url', base_url)
-    
+ 
     print('Registering handlers:', handlers)
     nb_server_app.log.info("Registering FAIRWorkflowsExtension handlers")
     

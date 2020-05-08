@@ -5,7 +5,9 @@ import { Widget } from "@lumino/widgets";
 
 import { showErrorMessage } from '@jupyterlab/apputils';
 
-import { INotebookTracker } from '@jupyterlab/notebook';
+import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
+
+import { CodeCellModel } from '@jupyterlab/cells';
 
 import { URLExt } from '@jupyterlab/coreutils';
 import { ServerConnection } from '@jupyterlab/services';
@@ -28,8 +30,8 @@ export class NanopubResult extends React.Component<INanopubProps, {}> {
         return (
             <li key={this.props.np} title={this.props.np}>
                 <span className="jp-DirListing-item" onClick={this.onClick}>
-                    <p>{this.props.v}</p>
-                    <p>{this.props.date}</p>
+                    {this.props.v}
+                    {this.props.date}
                 </span>
             </li>
         );
@@ -44,7 +46,7 @@ export interface IProps {
 export interface IState {
     source: 'nanopub' | 'workflowhub';
     searchtext: string;
-    resultsjson: any;
+    results: any;
 }
 
 
@@ -55,7 +57,7 @@ class FAIRSearch extends React.Component<IProps, IState> {
         this.state = {
             source: 'nanopub',
             searchtext: '',
-            resultsjson: []
+            results: []
         };
         
         this.debounced_search = debounce(this.search, 500);
@@ -71,37 +73,66 @@ class FAIRSearch extends React.Component<IProps, IState> {
         this.debounced_search();
     }
 
+    onSourceChange = (event: any) => {
+        this.setState({ source: event.target.value });
+    }
+
     search = () => {
         console.log('searching:', this.state.searchtext);
 
-        requestAPI<any>('nanosearch', {search_str: this.state.searchtext})
+        let endpoint = '';
+        let queryParams = {};
+
+        if (this.state.source === 'nanopub') {
+            endpoint = 'nanosearch';
+            queryParams = {search_str: this.state.searchtext};
+        } else if (this.state.source === 'workflowhub') {
+            endpoint = 'workflowhub';
+            queryParams = {search_str: this.state.searchtext};
+        } else {
+            console.error('Source is not recognised:\n', this.state.source);
+            return;
+        }
+ 
+        requestAPI<any>(endpoint, queryParams)
             .then(data => {
-                this.setState({resultsjson: data});
+                this.setState({results: data});
             })
             .catch(reason => {
                 console.error('Search failed:\n', reason);
             });
-
     }
 
     render() {
         console.log('Rendering FAIRSearch component')
-        
-        const nanopubResults = this.state.resultsjson.map( (c: any) => (
-            <NanopubResult np={c.np} v={c.v} date={c.date} onClick={this.onResultClick} />
-        ));
 
-        console.log({nanopubResults});
+        let searchresults = [];
+        if (this.state.source === 'nanopub') {
+            searchresults = this.state.results.map( (c: any) => (
+                <NanopubResult np={c.np} v={c.v} date={c.date} onClick={this.onResultClick} />
+            ));
+        } else if (this.state.source === 'workflowhub') {
+            searchresults = [];
+        }
 
         return (
             <div>
                 <div>
-                    <h3>FAIR Search</h3>
-                    <input type="text" id="searchentry" name="searchentry" onChange={this.onSearchEntry} value={this.state.searchtext} />
+                    <div className="jp-select-wrapper">
+                        Source:
+                        <select className='jp-mod-styled' value={this.state.source} onChange={this.onSourceChange}>
+                            <option key='select_nanopub' value='nanopub'>Nanopub</option>
+                            <option key='select_workflowhub' value='workflowhub'>Workflowhub</option>
+                        </select>
+                    </div>
+                    <div className="jp-select-wrapper">
+                        Search:
+                        <input type="text" id="searchentry" name="searchentry" onChange={this.onSearchEntry} value={this.state.searchtext} />
+                    </div>
                 </div>
                 <div className="p-Widget jp-DirListing">
                     <ul className="jp-DirListing-content">
-                        {nanopubResults}
+                        {searchresults}
                     </ul>
                 </div>
             </div>
@@ -137,6 +168,24 @@ export class FAIRWorkflowsWidget extends Widget {
         }
         const notebook = this.tracker.currentWidget.content;
         console.log(np, notebook);
+
+        const model = notebook.model;
+        if (model.readOnly) {
+            showErrorMessage('Unable to inject cell into read-only notebook', {});
+        }
+
+        let code = "np = Nanopub.fetch('" + np + "')\nprint(np)";
+
+        const activeCellIndex = notebook.activeCellIndex;
+        const cell = new CodeCellModel({
+            cell: {
+                cell_type: 'code',
+                metadata: { trusted: false, collapsed: false, tags: ['Injected by FAIR Workflows Widget'] },
+                source: [code],
+            },
+        });
+        model.cells.insert(activeCellIndex + 1, cell);
+        NotebookActions.selectBelow(notebook);
     }
 
 }
