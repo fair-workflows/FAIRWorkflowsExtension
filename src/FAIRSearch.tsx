@@ -15,22 +15,22 @@ import { ServerConnection } from '@jupyterlab/services';
 import { debounce } from "ts-debounce";
 
 
-export interface INanopubProps {
-    np: string;
-    v: string;
+export interface ISearchResultsProps {
+    uri: string;
+    description: string;
     date: string;
     onClick(np: string): void;
 }
 
-export class NanopubResult extends React.Component<INanopubProps, {}> {
+export class SearchResult extends React.Component<ISearchResultsProps, {}> {
     onClick = () => {
-        this.props.onClick(this.props.np);
+        this.props.onClick(this.props.uri);
     }
     render() {
         return (
-            <li key={this.props.np} title={this.props.np}>
+            <li key={this.props.uri} title={this.props.uri}>
                 <span className="jp-DirListing-item" onClick={this.onClick}>
-                    {this.props.v}
+                    {this.props.description}
                     {this.props.date}
                 </span>
             </li>
@@ -109,10 +109,12 @@ class FAIRSearch extends React.Component<IProps, IState> {
         let searchresults = [];
         if (this.state.source === 'nanopub') {
             searchresults = this.state.results.map( (c: any) => (
-                <NanopubResult np={c.np} v={c.v} date={c.date} onClick={this.onResultClick} />
+                <SearchResult uri={c.np} description={c.v} date={c.date} onClick={this.onResultClick} />
             ));
         } else if (this.state.source === 'workflowhub') {
-            searchresults = [];
+            searchresults = this.state.results.map( (c: any) => (
+                <SearchResult uri={c.url} description={c.title} date={'--'} onClick={this.onResultClick} />
+            ));
         }
 
         return (
