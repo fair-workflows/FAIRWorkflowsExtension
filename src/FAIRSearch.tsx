@@ -118,19 +118,24 @@ class FAIRSearch extends React.Component<IProps, IState> {
         }
 
         return (
-            <div>
-                <div>
-                    <div className="jp-select-wrapper">
-                        Source:
-                        <select className='jp-mod-styled' value={this.state.source} onChange={this.onSourceChange}>
-                            <option key='select_nanopub' value='nanopub'>Nanopub</option>
-                            <option key='select_workflowhub' value='workflowhub'>Workflowhub</option>
-                        </select>
-                    </div>
-                    <div className="jp-select-wrapper">
-                        Search:
-                        <input type="text" id="searchentry" name="searchentry" onChange={this.onSearchEntry} value={this.state.searchtext} />
-                    </div>
+            <div className="lm-Widget p-Widget">
+                <div className="jp-KeySelector jp-NotebookTools-tool p-Widget lm-Widget" >
+                    <header className="jp-RunningSessions-sectionHeader"><h2>FAIR Search</h2></header>
+                    <label>
+                        Source
+                        <div className="jp-select-wrapper jp-mod-focused">
+                            <select className='jp-mod-styled' value={this.state.source} onChange={this.onSourceChange}>
+                                <option key='select_nanopub' value='nanopub'>Nanopub</option>
+                                <option key='select_workflowhub' value='workflowhub'>Workflowhub</option>
+                            </select>
+                        </div>
+                    </label>
+                    <label>
+                        Search
+                        <div className="jp-select-wrapper">
+                            <input type="text" id="searchentry" name="searchentry" onChange={this.onSearchEntry} value={this.state.searchtext} />
+                        </div>
+                    </label>
                 </div>
                 <div className="p-Widget jp-DirListing">
                     <ul className="jp-DirListing-content">
@@ -138,10 +143,40 @@ class FAIRSearch extends React.Component<IProps, IState> {
                     </ul>
                 </div>
             </div>
-
         );
     }
 }
+
+
+export interface IManualStepState {
+    description: string;
+}
+
+class FAIRManualStep extends React.Component<IProps, IManualStepState> {
+    constructor(props: IProps) {
+        super(props);
+        this.state = {
+            description: ''
+        };
+    }
+
+    render() {
+        return (
+            <div className="lm-Widget p-Widget">
+                <div className="jp-KeySelector jp-NotebookTools-tool p-Widget lm-Widget" >
+                    <header className="jp-RunningSessions-sectionHeader"><h2>FAIR Manual Step</h2></header>
+                    <label>
+                        Description
+                        <div className="jp-select-wrapper">
+                            <input type="text" id="manualstepdescription" name="manualstepdescription" />
+                        </div>
+                    </label>
+                </div>
+            </div>
+        );
+    }
+}
+
 
 export class FAIRWorkflowsWidget extends Widget {
     tracker: INotebookTracker;
@@ -160,7 +195,11 @@ export class FAIRWorkflowsWidget extends Widget {
         console.log('FAIRWorkflowsWidget onUpdateRequest()');
 
         ReactDOM.unmountComponentAtNode(this.node);
-        ReactDOM.render(<FAIRSearch injectCode={this.injectCode} />, this.node);        
+        ReactDOM.render(
+            <div>
+                <FAIRSearch injectCode={this.injectCode} />
+                <FAIRManualStep injectCode={this.injectCode} />
+            </div>, this.node);        
     }
 
     injectCode = (uri: string, source: string) => {
