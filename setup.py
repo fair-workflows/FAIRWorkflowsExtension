@@ -23,9 +23,9 @@ version = get_version(os.path.join(name, "_version.py"))
 lab_path = os.path.join(HERE, name, "labextension")
 
 # Representative files that should exist after a successful build
-jstargets = [
-    os.path.join(HERE, "lib", "FAIRSearch.js"),
-]
+# jstargets = [
+#     os.path.join(HERE, "lib", "FAIRSearch.js"),
+# ]
 
 package_data_spec = {
     name: [
@@ -46,7 +46,7 @@ cmdclass = create_cmdclass("jsdeps",
 
 cmdclass["jsdeps"] = combine_commands(
     install_npm(HERE, build_cmd="build:all", npm=["jlpm"]),
-    ensure_targets(jstargets),
+#     ensure_targets(jstargets),
 )
 
 with open("README.md", "r") as fh:
