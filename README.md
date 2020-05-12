@@ -9,6 +9,12 @@ This extension is composed of a Python package named `FAIRWorkflowsExtension`
 for the server extension and a NPM package named `FAIRWorkflowsExtension`
 for the frontend extension.
 
+## Docker setup
+It is possible to run the project inside a docker container. Simply run the following command in the project directory:
+
+```shell script
+docker-compose up
+```
 
 ## Requirements
 
