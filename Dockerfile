@@ -1,6 +1,7 @@
 FROM ubuntu
 
 ENV JUPYTER_ENABLE_LAB=yes
+ENV PYTHONIOENCODING=utf-8
 
 RUN mkdir /app
 WORKDIR /app
