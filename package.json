@@ -12,7 +12,7 @@
     "url": "https://github.com/fair-workflows/FAIRWorkflowsExtension/issues"
   },
   "license": "BSD-3-Clause",
-  "author": "Robin Richardson",
+  "author": "Robin Richardson, Djura Smits",
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
     "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
