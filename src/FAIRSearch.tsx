@@ -133,7 +133,7 @@ class FAIRSearch extends React.Component<IProps, IState> {
                     <label>
                         Search
                         <div className="jp-select-wrapper">
-                            <input type="text" id="searchentry" name="searchentry" onChange={this.onSearchEntry} value={this.state.searchtext} />
+                            <input type="search" id="searchentry" name="searchentry" onChange={this.onSearchEntry} value={this.state.searchtext} />
                         </div>
                     </label>
                 </div>
@@ -168,7 +168,8 @@ class FAIRManualStep extends React.Component<IProps, IManualStepState> {
                     <label>
                         Description
                         <div className="jp-select-wrapper">
-                            <input type="text" id="manualstepdescription" name="manualstepdescription" />
+                            <input type="search" id="manualstepdescription" name="manualstepdescription" />
+                            <button type="button">Add step</button>
                         </div>
                     </label>
                 </div>
