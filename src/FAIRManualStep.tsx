@@ -1,13 +1,18 @@
 import * as React from 'react';
 
+/** Properties of the FAIRManualStep component */
 interface IFairManualStepProps {
     injectCode(uri: string, source: string): void;
 }
 
+/** State of the FAIRManualStep component */
 interface IFairManualStepState {
     description: string;
 }
 
+/**
+ * A React Component aiding in the creation of a FAIR Manual Step.
+ */
 export class FAIRManualStep extends React.Component<IFairManualStepProps, IFairManualStepState> {
     constructor(props: IFairManualStepProps) {
         super(props);

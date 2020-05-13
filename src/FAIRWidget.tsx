@@ -1,18 +1,17 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-
 import { Widget } from "@lumino/widgets";
-
 import { showErrorMessage } from '@jupyterlab/apputils';
-
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
-
 import { CodeCellModel } from '@jupyterlab/cells';
-
 import { FAIRSearch } from './FairSearch'
 import { FAIRManualStep } from './FairManualStep'
 
-
+/**
+ * Widget that lives in the left side bar of Jupyter Lab.
+ * Displays the FAIRSearch and FAIRManualStep components, to aid user in constructing FAIR Workflows.
+ * The widget can insert python code into cells in the currently selected notebook.
+ */
 export class FAIRWorkflowsWidget extends Widget {
     tracker: INotebookTracker;
     constructor(tracker: INotebookTracker) {

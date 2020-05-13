@@ -1,11 +1,9 @@
 import * as React from 'react';
-
 import { URLExt } from '@jupyterlab/coreutils';
 import { ServerConnection } from '@jupyterlab/services';
-
 import { debounce } from "ts-debounce";
 
-
+/** Properties of the SearchResult component */
 interface ISearchResultProps {
     uri: string;
     description: string;
@@ -13,6 +11,11 @@ interface ISearchResultProps {
     onClick(np: string): void;
 }
 
+/**
+ * A React component that renders a single Search Result.
+ * Clicking on the component will trigger a call to the onClick()
+ * function specified via the ISearchResultProps.
+ */
 export class SearchResult extends React.Component<ISearchResultProps, {}> {
     onClick = () => {
         this.props.onClick(this.props.uri);
@@ -29,11 +32,12 @@ export class SearchResult extends React.Component<ISearchResultProps, {}> {
     }
 }
 
-
+/** Properties of the FAIRSearch component */
 interface IFairSearchProps {
     injectCode(uri: string, source: string): void;
 }
 
+/** State of theFAIRSearch component */
 interface IFairSearchState {
     source: 'nanopub' | 'workflowhub';
     searchtext: string;
@@ -41,6 +45,11 @@ interface IFairSearchState {
 }
 
 
+/**
+ * A React Component adding ability to search the nanopub and workflowhub servers.
+ * Search results are obtained through requests to the extension backend (running the FAIRWorkflowsExtension python lib)
+ * Search input through the UI is debounced (triggered after 500 ms of inactivity). 
+ */
 export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchState> {
     debounced_search: ReturnType<typeof debounce>;
     constructor(props: IFairSearchProps) {
@@ -54,20 +63,37 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
         this.debounced_search = debounce(this.search, 500);
     }
 
+    /**
+     * Called when a search result option has been clicked.
+     * Prompts the injection of the corresponding python code to a notebook cell.
+     */
     onResultClick = (uri: string) => {
         console.log("User selected:", uri);
         this.props.injectCode(uri, this.state.source);
     }
 
+    /**
+     * Called when the search entry input changes. The searching is debounced,
+     * triggering after 500ms of inactivity, following this change. This is to
+     * reduce the number of search requests going out, while maintaining a 
+     * 'real time' feel to the search.
+     */
     onSearchEntry = (event: any) => {
         this.setState({searchtext: event.target.value});
         this.debounced_search();
     }
 
+    /**
+     * Called when the search source is changed (e.g. 'nanopub' or 'workflowhub')
+     */
     onSourceChange = (event: any) => {
         this.setState({ source: event.target.value });
     }
 
+    /**
+     * Sends the appropriate search query to the backend, and obtains
+     * back the search results.
+     */
     search = () => {
         console.log('searching:', this.state.searchtext);
 
@@ -94,6 +120,10 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             });
     }
 
+    /**
+     * Renders the FAIRSearch component. <SearchResult> components are used to display
+     * any currently active search results.
+     */
     render() {
         console.log('Rendering FAIRSearch component')
 
@@ -139,6 +169,11 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
 }
 
 
+/**
+ * Handles the search query at the specified endpoint (e.g. 'nanopub' or 'workflowhub')
+ * and with the specified search parameters (provided through the 'query' dictionary).
+ * Returns the results of this request to the extension backend.
+ */
 async function requestAPI<T>(
     endPoint = '',
     query = {},
