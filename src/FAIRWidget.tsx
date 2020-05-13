@@ -4,8 +4,8 @@ import { Widget } from "@lumino/widgets";
 import { showErrorMessage } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { CodeCellModel } from '@jupyterlab/cells';
-import { FAIRSearch } from './FairSearch'
-import { FAIRManualStep } from './FairManualStep'
+import { FAIRSearch } from './FAIRSearch'
+import { FAIRManualStep } from './FAIRManualStep'
 
 /**
  * Widget that lives in the left side bar of Jupyter Lab.
