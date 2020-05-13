@@ -1,13 +1,4 @@
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-
-import { Widget } from "@lumino/widgets";
-
-import { showErrorMessage } from '@jupyterlab/apputils';
-
-import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
-
-import { CodeCellModel } from '@jupyterlab/cells';
 
 import { URLExt } from '@jupyterlab/coreutils';
 import { ServerConnection } from '@jupyterlab/services';
@@ -15,14 +6,14 @@ import { ServerConnection } from '@jupyterlab/services';
 import { debounce } from "ts-debounce";
 
 
-export interface ISearchResultsProps {
+interface ISearchResultProps {
     uri: string;
     description: string;
     date: string;
     onClick(np: string): void;
 }
 
-export class SearchResult extends React.Component<ISearchResultsProps, {}> {
+export class SearchResult extends React.Component<ISearchResultProps, {}> {
     onClick = () => {
         this.props.onClick(this.props.uri);
     }
@@ -39,20 +30,20 @@ export class SearchResult extends React.Component<ISearchResultsProps, {}> {
 }
 
 
-export interface IProps {
+interface IFairSearchProps {
     injectCode(uri: string, source: string): void;
 }
 
-export interface IState {
+interface IFairSearchState {
     source: 'nanopub' | 'workflowhub';
     searchtext: string;
     results: any;
 }
 
 
-class FAIRSearch extends React.Component<IProps, IState> {
+export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchState> {
     debounced_search: ReturnType<typeof debounce>;
-    constructor(props: IProps) {
+    constructor(props: IFairSearchProps) {
         super(props);
         this.state = {
             source: 'nanopub',
@@ -148,96 +139,7 @@ class FAIRSearch extends React.Component<IProps, IState> {
 }
 
 
-export interface IManualStepState {
-    description: string;
-}
-
-class FAIRManualStep extends React.Component<IProps, IManualStepState> {
-    constructor(props: IProps) {
-        super(props);
-        this.state = {
-            description: ''
-        };
-    }
-
-    render() {
-        return (
-            <div className="lm-Widget p-Widget">
-                <div className="jp-KeySelector jp-NotebookTools-tool p-Widget lm-Widget" >
-                    <header className="jp-RunningSessions-sectionHeader"><h2>FAIR Manual Step</h2></header>
-                    <label>
-                        Description
-                        <div className="jp-select-wrapper">
-                            <input type="search" id="manualstepdescription" name="manualstepdescription" />
-                            <button type="button">Add step</button>
-                        </div>
-                    </label>
-                </div>
-            </div>
-        );
-    }
-}
-
-
-export class FAIRWorkflowsWidget extends Widget {
-    tracker: INotebookTracker;
-    constructor(tracker: INotebookTracker) {
-        super();
-        this.tracker = tracker;
-        this.title.label = 'FAIRWorkflows';
-        this.title.caption = 'FAIR Workflows';
-        this.id = 'fairworkflowswidget';
-        this.addClass('jp-fairwidget')
-
-        this.update();
-    }
-
-    onUpdateRequest() {
-        console.log('FAIRWorkflowsWidget onUpdateRequest()');
-
-        ReactDOM.unmountComponentAtNode(this.node);
-        ReactDOM.render(
-            <div>
-                <FAIRSearch injectCode={this.injectCode} />
-                <FAIRManualStep injectCode={this.injectCode} />
-            </div>, this.node);        
-    }
-
-    injectCode = (uri: string, source: string) => {
-        if (!this.tracker.currentWidget) {
-            showErrorMessage('Cannot inject code into cell without an active notebook', {});
-            return;
-        }
-        const notebook = this.tracker.currentWidget.content;
-        console.log(uri, notebook);
-
-        const model = notebook.model;
-        if (model.readOnly) {
-            showErrorMessage('Unable to inject cell into read-only notebook', {});
-        }
-
-        let code = '';
-        if (source === 'nanopub') {
-            code = "np = Nanopub.fetch('" + uri + "')\nprint(np)";
-        } else if (source === 'workflowhub') {
-            code = "wf = Workflowhub.fetch('" + uri + "')\nprint(wf)";
-        }
-
-        const activeCellIndex = notebook.activeCellIndex;
-        const cell = new CodeCellModel({
-            cell: {
-                cell_type: 'code',
-                metadata: { trusted: false, collapsed: false, tags: ['Injected by FAIR Workflows Widget'] },
-                source: [code],
-            },
-        });
-        model.cells.insert(activeCellIndex + 1, cell);
-        NotebookActions.selectBelow(notebook);
-    }
-
-}
-
-export async function requestAPI<T>(
+async function requestAPI<T>(
     endPoint = '',
     query = {},
     init: RequestInit = {}
@@ -268,5 +170,4 @@ export async function requestAPI<T>(
 
     return data;
 }
-
 

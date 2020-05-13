@@ -7,7 +7,7 @@ import {
 
 import { INotebookTracker } from '@jupyterlab/notebook';
 
-import { FAIRWorkflowsWidget } from './FAIRSearch'
+import { FAIRWorkflowsWidget } from './FAIRWidget'
 
 
 /**
