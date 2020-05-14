@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { Widget } from "@lumino/widgets";
+import { Widget } from '@lumino/widgets';
 import { showErrorMessage } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { CodeCellModel } from '@jupyterlab/cells';
@@ -25,7 +25,7 @@ export class FAIRWorkflowsWidget extends Widget {
         this.update();
     }
 
-    onUpdateRequest() {
+    onUpdateRequest(): void {
         console.log('FAIRWorkflowsWidget onUpdateRequest()');
 
         ReactDOM.unmountComponentAtNode(this.node);
@@ -36,7 +36,7 @@ export class FAIRWorkflowsWidget extends Widget {
             </div>, this.node);        
     }
 
-    injectCode = (uri: string, source: string) => {
+    injectCode = (uri: string, source: string): void => {
         if (!this.tracker.currentWidget) {
             showErrorMessage('Cannot inject code into cell without an active notebook', {});
             return;
@@ -51,9 +51,9 @@ export class FAIRWorkflowsWidget extends Widget {
 
         let code = '';
         if (source === 'nanopub') {
-            code = "np = Nanopub.fetch('" + uri + "')\nprint(np)";
+            code = 'np = Nanopub.fetch(\'' + uri + '\')\nprint(np)';
         } else if (source === 'workflowhub') {
-            code = "wf = Workflowhub.fetch('" + uri + "')\nprint(wf)";
+            code = 'wf = Workflowhub.fetch(\'' + uri + '\')\nprint(wf)';
         }
 
         const activeCellIndex = notebook.activeCellIndex;

@@ -20,7 +20,7 @@ const extension: JupyterFrontEndPlugin<void> = {
 /**
  * Activate the extension, placing the FAIRWorkflowsWidget into the left side bar of Jupyter Lab.
  */
-function activate(app: JupyterFrontEnd, tracker: INotebookTracker, restorer: ILayoutRestorer) {
+function activate(app: JupyterFrontEnd, tracker: INotebookTracker, restorer: ILayoutRestorer): void {
     console.log('JupyterLab extension FAIRWorkflowsExtension is activated!');
 
     console.log('Loading FAIRWorkbenchWidget...');

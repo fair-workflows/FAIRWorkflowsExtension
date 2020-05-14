@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { URLExt } from '@jupyterlab/coreutils';
 import { ServerConnection } from '@jupyterlab/services';
-import { debounce } from "ts-debounce";
+import { debounce } from 'ts-debounce';
 
 /** Properties of the SearchResult component */
 interface ISearchResultProps {
@@ -17,13 +17,13 @@ interface ISearchResultProps {
  * function specified via the ISearchResultProps.
  */
 export class SearchResult extends React.Component<ISearchResultProps, {}> {
-    onClick = () => {
+    onClick = (): void => {
         this.props.onClick(this.props.uri);
     }
-    render() {
+    render(): React.ReactElement {
         return (
             <li key={this.props.uri} title={this.props.uri}>
-                <span className="jp-DirListing-item" onClick={this.onClick}>
+                <span className='jp-DirListing-item' onClick={this.onClick}>
                     {this.props.description}
                     {this.props.date}
                 </span>
@@ -67,8 +67,8 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
      * Called when a search result option has been clicked.
      * Prompts the injection of the corresponding python code to a notebook cell.
      */
-    onResultClick = (uri: string) => {
-        console.log("User selected:", uri);
+    onResultClick = (uri: string): void => {
+        console.log('User selected:', uri);
         this.props.injectCode(uri, this.state.source);
     }
 
@@ -78,7 +78,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
      * reduce the number of search requests going out, while maintaining a 
      * 'real time' feel to the search.
      */
-    onSearchEntry = (event: any) => {
+    onSearchEntry = (event: any): void => {
         this.setState({searchtext: event.target.value});
         this.debounced_search();
     }
@@ -86,7 +86,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
     /**
      * Called when the search source is changed (e.g. 'nanopub' or 'workflowhub')
      */
-    onSourceChange = (event: any) => {
+    onSourceChange = (event: any): void => {
         this.setState({ source: event.target.value });
     }
 
@@ -94,7 +94,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
      * Sends the appropriate search query to the backend, and obtains
      * back the search results.
      */
-    search = () => {
+    search = (): void => {
         console.log('searching:', this.state.searchtext);
 
         let endpoint = '';
@@ -124,17 +124,17 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
      * Renders the FAIRSearch component. <SearchResult> components are used to display
      * any currently active search results.
      */
-    render() {
+    render(): React.ReactElement {
         console.log('Rendering FAIRSearch component')
 
         let searchresults = [];
         if (this.state.source === 'nanopub') {
             searchresults = this.state.results.map( (c: any) => (
-                <SearchResult uri={c.np} description={c.v} date={c.date} onClick={this.onResultClick} />
+                <SearchResult key={c.id} uri={c.np} description={c.v} date={c.date} onClick={this.onResultClick} />
             ));
         } else if (this.state.source === 'workflowhub') {
             searchresults = this.state.results.map( (c: any) => (
-                <SearchResult uri={c.url} description={c.title} date={'--'} onClick={this.onResultClick} />
+                <SearchResult key={c.id} uri={c.url} description={c.title} date={'--'} onClick={this.onResultClick} />
             ));
         }
 
@@ -183,10 +183,9 @@ async function requestAPI<T>(
     const settings = ServerConnection.makeSettings();
     const queryString = (new URLSearchParams(query)).toString();
     const requestUrl = URLExt.join(
-            settings.baseUrl,
-            'FAIRWorkflowsExtension', // API Namespace
-            endPoint,
-            ) + '?' + queryString;
+        settings.baseUrl,
+        'FAIRWorkflowsExtension', // API Namespace
+        endPoint) + '?' + queryString;
     
     console.log('requestAPI called with ' + endPoint + ' ' + init + ', ' + requestUrl);
 

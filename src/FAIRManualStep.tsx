@@ -21,7 +21,7 @@ export class FAIRManualStep extends React.Component<IFairManualStepProps, IFairM
         };
     }
 
-    render() {
+    render(): React.ReactElement {
         return (
             <div className="lm-Widget p-Widget">
                 <div className="jp-KeySelector jp-NotebookTools-tool p-Widget lm-Widget" >
