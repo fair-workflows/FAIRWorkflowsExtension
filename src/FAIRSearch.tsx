@@ -1,35 +1,29 @@
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-
-import { Widget } from "@lumino/widgets";
-
-import { showErrorMessage } from '@jupyterlab/apputils';
-
-import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
-
-import { CodeCellModel } from '@jupyterlab/cells';
-
 import { URLExt } from '@jupyterlab/coreutils';
 import { ServerConnection } from '@jupyterlab/services';
+import { debounce } from 'ts-debounce';
 
-import { debounce } from "ts-debounce";
-
-
-export interface ISearchResultsProps {
+/** Properties of the SearchResult component */
+interface ISearchResultProps {
     uri: string;
     description: string;
     date: string;
     onClick(np: string): void;
 }
 
-export class SearchResult extends React.Component<ISearchResultsProps, {}> {
-    onClick = () => {
+/**
+ * A React component that renders a single Search Result.
+ * Clicking on the component will trigger a call to the onClick()
+ * function specified via the ISearchResultProps.
+ */
+export class SearchResult extends React.Component<ISearchResultProps, {}> {
+    onClick = (): void => {
         this.props.onClick(this.props.uri);
     }
-    render() {
+    render(): React.ReactElement {
         return (
             <li key={this.props.uri} title={this.props.uri}>
-                <span className="jp-DirListing-item" onClick={this.onClick}>
+                <span className='jp-DirListing-item' onClick={this.onClick}>
                     {this.props.description}
                     {this.props.date}
                 </span>
@@ -38,21 +32,27 @@ export class SearchResult extends React.Component<ISearchResultsProps, {}> {
     }
 }
 
-
-export interface IProps {
+/** Properties of the FAIRSearch component */
+interface IFairSearchProps {
     injectCode(uri: string, source: string): void;
 }
 
-export interface IState {
+/** State of theFAIRSearch component */
+interface IFairSearchState {
     source: 'nanopub' | 'workflowhub';
     searchtext: string;
     results: any;
 }
 
 
-class FAIRSearch extends React.Component<IProps, IState> {
+/**
+ * A React Component adding ability to search the nanopub and workflowhub servers.
+ * Search results are obtained through requests to the extension backend (running the FAIRWorkflowsExtension python lib)
+ * Search input through the UI is debounced (triggered after 500 ms of inactivity). 
+ */
+export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchState> {
     debounced_search: ReturnType<typeof debounce>;
-    constructor(props: IProps) {
+    constructor(props: IFairSearchProps) {
         super(props);
         this.state = {
             source: 'nanopub',
@@ -63,21 +63,38 @@ class FAIRSearch extends React.Component<IProps, IState> {
         this.debounced_search = debounce(this.search, 500);
     }
 
-    onResultClick = (uri: string) => {
-        console.log("User selected:", uri);
+    /**
+     * Called when a search result option has been clicked.
+     * Prompts the injection of the corresponding python code to a notebook cell.
+     */
+    onResultClick = (uri: string): void => {
+        console.log('User selected:', uri);
         this.props.injectCode(uri, this.state.source);
     }
 
-    onSearchEntry = (event: any) => {
+    /**
+     * Called when the search entry input changes. The searching is debounced,
+     * triggering after 500ms of inactivity, following this change. This is to
+     * reduce the number of search requests going out, while maintaining a 
+     * 'real time' feel to the search.
+     */
+    onSearchEntry = (event: any): void => {
         this.setState({searchtext: event.target.value});
         this.debounced_search();
     }
 
-    onSourceChange = (event: any) => {
+    /**
+     * Called when the search source is changed (e.g. 'nanopub' or 'workflowhub')
+     */
+    onSourceChange = (event: any): void => {
         this.setState({ source: event.target.value });
     }
 
-    search = () => {
+    /**
+     * Sends the appropriate search query to the backend, and obtains
+     * back the search results.
+     */
+    search = (): void => {
         console.log('searching:', this.state.searchtext);
 
         let endpoint = '';
@@ -103,17 +120,21 @@ class FAIRSearch extends React.Component<IProps, IState> {
             });
     }
 
-    render() {
+    /**
+     * Renders the FAIRSearch component. <SearchResult> components are used to display
+     * any currently active search results.
+     */
+    render(): React.ReactElement {
         console.log('Rendering FAIRSearch component')
 
         let searchresults = [];
         if (this.state.source === 'nanopub') {
             searchresults = this.state.results.map( (c: any) => (
-                <SearchResult uri={c.np} description={c.v} date={c.date} onClick={this.onResultClick} />
+                <SearchResult key={c.id} uri={c.np} description={c.v} date={c.date} onClick={this.onResultClick} />
             ));
         } else if (this.state.source === 'workflowhub') {
             searchresults = this.state.results.map( (c: any) => (
-                <SearchResult uri={c.url} description={c.title} date={'--'} onClick={this.onResultClick} />
+                <SearchResult key={c.id} uri={c.url} description={c.title} date={'--'} onClick={this.onResultClick} />
             ));
         }
 
@@ -148,96 +169,12 @@ class FAIRSearch extends React.Component<IProps, IState> {
 }
 
 
-export interface IManualStepState {
-    description: string;
-}
-
-class FAIRManualStep extends React.Component<IProps, IManualStepState> {
-    constructor(props: IProps) {
-        super(props);
-        this.state = {
-            description: ''
-        };
-    }
-
-    render() {
-        return (
-            <div className="lm-Widget p-Widget">
-                <div className="jp-KeySelector jp-NotebookTools-tool p-Widget lm-Widget" >
-                    <header className="jp-RunningSessions-sectionHeader"><h2>FAIR Manual Step</h2></header>
-                    <label>
-                        Description
-                        <div className="jp-select-wrapper">
-                            <input type="search" id="manualstepdescription" name="manualstepdescription" />
-                            <button type="button">Add step</button>
-                        </div>
-                    </label>
-                </div>
-            </div>
-        );
-    }
-}
-
-
-export class FAIRWorkflowsWidget extends Widget {
-    tracker: INotebookTracker;
-    constructor(tracker: INotebookTracker) {
-        super();
-        this.tracker = tracker;
-        this.title.label = 'FAIRWorkflows';
-        this.title.caption = 'FAIR Workflows';
-        this.id = 'fairworkflowswidget';
-        this.addClass('jp-fairwidget')
-
-        this.update();
-    }
-
-    onUpdateRequest() {
-        console.log('FAIRWorkflowsWidget onUpdateRequest()');
-
-        ReactDOM.unmountComponentAtNode(this.node);
-        ReactDOM.render(
-            <div>
-                <FAIRSearch injectCode={this.injectCode} />
-                <FAIRManualStep injectCode={this.injectCode} />
-            </div>, this.node);        
-    }
-
-    injectCode = (uri: string, source: string) => {
-        if (!this.tracker.currentWidget) {
-            showErrorMessage('Cannot inject code into cell without an active notebook', {});
-            return;
-        }
-        const notebook = this.tracker.currentWidget.content;
-        console.log(uri, notebook);
-
-        const model = notebook.model;
-        if (model.readOnly) {
-            showErrorMessage('Unable to inject cell into read-only notebook', {});
-        }
-
-        let code = '';
-        if (source === 'nanopub') {
-            code = "np = Nanopub.fetch('" + uri + "')\nprint(np)";
-        } else if (source === 'workflowhub') {
-            code = "wf = Workflowhub.fetch('" + uri + "')\nprint(wf)";
-        }
-
-        const activeCellIndex = notebook.activeCellIndex;
-        const cell = new CodeCellModel({
-            cell: {
-                cell_type: 'code',
-                metadata: { trusted: false, collapsed: false, tags: ['Injected by FAIR Workflows Widget'] },
-                source: [code],
-            },
-        });
-        model.cells.insert(activeCellIndex + 1, cell);
-        NotebookActions.selectBelow(notebook);
-    }
-
-}
-
-export async function requestAPI<T>(
+/**
+ * Handles the search query at the specified endpoint (e.g. 'nanopub' or 'workflowhub')
+ * and with the specified search parameters (provided through the 'query' dictionary).
+ * Returns the results of this request to the extension backend.
+ */
+async function requestAPI<T>(
     endPoint = '',
     query = {},
     init: RequestInit = {}
@@ -246,10 +183,9 @@ export async function requestAPI<T>(
     const settings = ServerConnection.makeSettings();
     const queryString = (new URLSearchParams(query)).toString();
     const requestUrl = URLExt.join(
-            settings.baseUrl,
-            'FAIRWorkflowsExtension', // API Namespace
-            endPoint,
-            ) + '?' + queryString;
+        settings.baseUrl,
+        'FAIRWorkflowsExtension', // API Namespace
+        endPoint) + '?' + queryString;
     
     console.log('requestAPI called with ' + endPoint + ' ' + init + ', ' + requestUrl);
 
@@ -268,5 +204,4 @@ export async function requestAPI<T>(
 
     return data;
 }
-
 

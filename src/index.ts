@@ -4,11 +4,8 @@ import {
     ILayoutRestorer
 } from '@jupyterlab/application';
 
-
 import { INotebookTracker } from '@jupyterlab/notebook';
-
-import { FAIRWorkflowsWidget } from './FAIRSearch'
-
+import { FAIRWorkflowsWidget } from './FAIRWidget'
 
 /**
  * Initialization data for the FAIRWorkflowsExtension extension.
@@ -20,8 +17,10 @@ const extension: JupyterFrontEndPlugin<void> = {
     requires: [INotebookTracker, ILayoutRestorer]
 };
 
-
-function activate(app: JupyterFrontEnd, tracker: INotebookTracker, restorer: ILayoutRestorer) {
+/**
+ * Activate the extension, placing the FAIRWorkflowsWidget into the left side bar of Jupyter Lab.
+ */
+function activate(app: JupyterFrontEnd, tracker: INotebookTracker, restorer: ILayoutRestorer): void {
     console.log('JupyterLab extension FAIRWorkflowsExtension is activated!');
 
     console.log('Loading FAIRWorkbenchWidget...');
@@ -34,6 +33,5 @@ function activate(app: JupyterFrontEnd, tracker: INotebookTracker, restorer: ILa
 
     console.log('...FAIRWorkbenchWidget loaded');
 }
-
 
 export default extension;
