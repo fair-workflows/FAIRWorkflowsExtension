@@ -21,6 +21,15 @@ export class FAIRManualStep extends React.Component<IFairManualStepProps, IFairM
         };
     }
 
+    onClick = (): void => {
+        let code = 'Manual Step:\n' + this.state.description;
+        this.props.injectCode(code);
+    }
+
+    onChange = (event: any): void => {
+        this.setState({ description: event.target.value });
+    }
+
     render(): React.ReactElement {
         return (
             <div className="lm-Widget p-Widget">
@@ -29,8 +38,8 @@ export class FAIRManualStep extends React.Component<IFairManualStepProps, IFairM
                     <label>
                         Description
                         <div className="jp-select-wrapper">
-                            <input type="search" id="manualstepdescription" name="manualstepdescription" />
-                            <button type="button">Add step</button>
+                            <input type="search" id="manualstepdescription" name="manualstepdescription" onChange={this.onChange} value={this.state.description} />
+                            <button type="button" onClick={this.onClick}>Add step</button>
                         </div>
                     </label>
                 </div>
