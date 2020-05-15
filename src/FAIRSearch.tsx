@@ -38,7 +38,7 @@ interface IFairSearchProps {
 
 /** State of theFAIRSearch component */
 interface IFairSearchState {
-    source: 'nanopub' | 'workflowhub';
+    source: 'nanopub' | 'workflowhub' | 'step';
     searchtext: string;
     results: any;
 }
@@ -108,11 +108,14 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
 
         if (this.state.source === 'nanopub') {
             endpoint = 'nanosearch';
-            queryParams = {search_str: this.state.searchtext};
+            queryParams = {type_of_search: 'text', search_str: this.state.searchtext};
         } else if (this.state.source === 'workflowhub') {
             endpoint = 'workflowhub';
             queryParams = {search_str: this.state.searchtext};
-        } else {
+        } else if (this.state.source === 'step') {
+            endpoint = 'nanosearch';
+            queryParams = {type_of_search: 'pattern', subj: '', pred: '', obj: 'https://www.omg.org/spec/BPMN/scriptTask'};
+         } else {
             console.error('Source is not recognised:\n', this.state.source);
             return;
         }
@@ -142,6 +145,10 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             searchresults = this.state.results.map( (c: any) => (
                 <SearchResult key={c.id} uri={c.url} description={c.title} date={'--'} onClick={this.onResultClick} />
             ));
+        } else if (this.state.source === 'step') {
+            searchresults = this.state.results.map( (c: any) => (
+                <SearchResult key={c.id} uri={c.url} description={c.title} date={c.date} onClick={this.onResultClick} />
+            ));
         }
 
         return (
@@ -154,6 +161,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
                             <select className='jp-mod-styled' value={this.state.source} onChange={this.onSourceChange}>
                                 <option key='select_nanopub' value='nanopub'>Nanopub</option>
                                 <option key='select_workflowhub' value='workflowhub'>Workflowhub</option>
+                                <option key='select_step' value='step'>Step</option>
                             </select>
                         </div>
                     </label>
