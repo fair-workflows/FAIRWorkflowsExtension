@@ -23,8 +23,8 @@ export class SearchResult extends React.Component<ISearchResultProps, {}> {
         return (
             <li key={this.props.uri} title={this.props.uri}>
                 <span className='jp-DirListing-item' onClick={this.onClick}>
-                    {this.props.description}
-                    {this.props.date}
+                    <p>{this.props.description}</p>
+                    <p>{this.props.date}</p>
                 </span>
             </li>
         );
@@ -158,7 +158,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             ));
         } else if (this.state.source === 'step') {
             searchresults = this.state.results.map( (c: any) => (
-                <SearchResult key={c.id} uri={c.np} description={c.v} date={c.date} onClick={this.onResultClick} />
+                <SearchResult key={c.id} uri={c.np} description={c.np} date={c.date} onClick={this.onResultClick} />
             ));
         }
 
