@@ -12,10 +12,20 @@ class NanopubSearchHandler(APIHandler):
     @tornado.web.authenticated
     def get(self):
 
-        search_str = self.get_argument('search_str')
-        print('Searching for', search_str)
+        type_of_search = self.get_argument('type_of_search')
 
-        results = fairworkflows.Nanopub.search_text(search_str)
+        if type_of_search == 'text':
+            search_str = self.get_argument('search_str')
+            print('Searching for', search_str)
+            results = fairworkflows.Nanopub.search_text(search_str)
+        elif type_of_search == 'pattern':
+            subj = self.get_argument('subj')
+            pred = self.get_argument('pred')
+            obj = self.get_argument('obj')
+            print('Searching for pattern', subj, pred, obj)
+            results = fairworkflows.Nanopub.search_pattern(subj=subj, pred=pred, obj=obj)
+        else:
+            raise ValueError(f'Unrecognized type_of_search, {type_of_search}')
 
         ret = json.dumps(results)
         self.finish(ret)
