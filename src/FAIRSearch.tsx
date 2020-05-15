@@ -75,6 +75,17 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
         } else if (this.state.source === 'workflowhub') {
             let code = 'wf = Workflowhub.fetch(\'' + uri + '\')\nprint(wf)';
             this.props.injectCode(code);
+        } else if (this.state.source === 'step') {
+            let queryParams = {'np_uri': uri};
+            requestAPI<any>('nanostep', queryParams)
+                .then(data => {
+                    let code = data
+                    console.log(data)
+                    this.props.injectCode(code)
+                })
+                .catch(reason => {
+                    console.error('Nanostep load failed:\n', reason);
+                });
         }
     }
 
@@ -147,7 +158,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             ));
         } else if (this.state.source === 'step') {
             searchresults = this.state.results.map( (c: any) => (
-                <SearchResult key={c.id} uri={c.url} description={c.title} date={c.date} onClick={this.onResultClick} />
+                <SearchResult key={c.id} uri={c.np} description={c.v} date={c.date} onClick={this.onResultClick} />
             ));
         }
 
