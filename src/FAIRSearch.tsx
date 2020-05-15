@@ -70,18 +70,17 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
         console.log('User selected:', uri);
 
         if (this.state.source === 'nanopub') {
-            let code = 'np = Nanopub.fetch(\'' + uri + '\')\nprint(np)';
+            const code = 'np = Nanopub.fetch(\'' + uri + '\')\nprint(np)';
             this.props.injectCode(code);
         } else if (this.state.source === 'workflowhub') {
-            let code = 'wf = Workflowhub.fetch(\'' + uri + '\')\nprint(wf)';
+            const code = 'wf = Workflowhub.fetch(\'' + uri + '\')\nprint(wf)';
             this.props.injectCode(code);
         } else if (this.state.source === 'step') {
-            let queryParams = {'np_uri': uri};
+            const queryParams = {'np_uri': uri};
             requestAPI<any>('nanostep', queryParams)
                 .then(data => {
-                    let code = data
                     console.log(data)
-                    this.props.injectCode(code)
+                    this.props.injectCode(data)
                 })
                 .catch(reason => {
                     console.error('Nanostep load failed:\n', reason);
@@ -104,7 +103,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
      * Called when the search source is changed (e.g. 'nanopub' or 'workflowhub')
      */
     onSourceChange = (event: any): void => {
-        this.setState({ source: event.target.value });
+        this.setState({ source: event.target.value, results: [], searchtext: '' });
     }
 
     /**
@@ -126,7 +125,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
         } else if (this.state.source === 'step') {
             endpoint = 'nanosearch';
             queryParams = {type_of_search: 'pattern', subj: '', pred: '', obj: 'https://www.omg.org/spec/BPMN/scriptTask'};
-         } else {
+        } else {
             console.error('Source is not recognised:\n', this.state.source);
             return;
         }
