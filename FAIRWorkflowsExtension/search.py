@@ -15,7 +15,7 @@ class NanopubSearchHandler(APIHandler):
         search_str = self.get_argument('search_str')
         print('Searching for', search_str)
 
-        results = fairworkflows.Nanopub.search(search_str)
+        results = fairworkflows.Nanopub.search_text(search_str)
 
         ret = json.dumps(results)
         self.finish(ret)
@@ -42,3 +42,12 @@ class WorkflowhubSearchHandler(APIHandler):
 def workflowhub_search_handler(base_url='/'):
     endpoint = url_path_join(base_url, '/workflowhub')
     return endpoint, WorkflowhubSearchHandler
+
+
+#g = np.data
+#qres = g.query(
+#    """SELECT DISTINCT ?code
+#       WHERE {
+#          ?a <http://purl.org/dc/elements/1.1/description> ?code .
+#       }""")
+#print([i for i in qres])
