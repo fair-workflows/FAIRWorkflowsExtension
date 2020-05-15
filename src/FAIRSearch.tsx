@@ -34,7 +34,7 @@ export class SearchResult extends React.Component<ISearchResultProps, {}> {
 
 /** Properties of the FAIRSearch component */
 interface IFairSearchProps {
-    injectCode(uri: string, source: string): void;
+    injectCode(injectStr: string): void;
 }
 
 /** State of theFAIRSearch component */
@@ -69,7 +69,14 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
      */
     onResultClick = (uri: string): void => {
         console.log('User selected:', uri);
-        this.props.injectCode(uri, this.state.source);
+
+        if (this.state.source === 'nanopub') {
+            let code = 'np = Nanopub.fetch(\'' + uri + '\')\nprint(np)';
+            this.props.injectCode(code);
+        } else if (this.state.source === 'workflowhub') {
+            let code = 'wf = Workflowhub.fetch(\'' + uri + '\')\nprint(wf)';
+            this.props.injectCode(code);
+        }
     }
 
     /**

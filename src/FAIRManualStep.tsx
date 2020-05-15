@@ -2,7 +2,7 @@ import * as React from 'react';
 
 /** Properties of the FAIRManualStep component */
 interface IFairManualStepProps {
-    injectCode(uri: string, source: string): void;
+    injectCode(injectStr: string): void;
 }
 
 /** State of the FAIRManualStep component */
