@@ -2,6 +2,14 @@ version: "3.3"
 services:
   jupyterlab:
     build: .
-    command:  ["/usr/local/bin/jupyter",  "lab", "--ip=0.0.0.0", "--port=8888", "--allow-root", "--watch"]
     ports:
       - 8888:8888
+
+  mockworkflowhub:
+    image: library/python:3.7-alpine
+    volumes:
+      - ./demo:/web
+    ports:
+      - 8080:8080
+    command: python -m http.server --directory /web 8080
+
