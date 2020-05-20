@@ -36,24 +36,16 @@ export class FAIRWorkflowsWidget extends Widget {
             </div>, this.node);        
     }
 
-    injectCode = (uri: string, source: string): void => {
+    injectCode = (injectStr: string): void => {
         if (!this.tracker.currentWidget) {
             showErrorMessage('Cannot inject code into cell without an active notebook', {});
             return;
         }
         const notebook = this.tracker.currentWidget.content;
-        console.log(uri, notebook);
 
         const model = notebook.model;
         if (model.readOnly) {
             showErrorMessage('Unable to inject cell into read-only notebook', {});
-        }
-
-        let code = '';
-        if (source === 'nanopub') {
-            code = 'np = Nanopub.fetch(\'' + uri + '\')\nprint(np)';
-        } else if (source === 'workflowhub') {
-            code = 'wf = Workflowhub.fetch(\'' + uri + '\')\nprint(wf)';
         }
 
         const activeCellIndex = notebook.activeCellIndex;
@@ -61,7 +53,7 @@ export class FAIRWorkflowsWidget extends Widget {
             cell: {
                 cell_type: 'code',
                 metadata: { trusted: false, collapsed: false, tags: ['Injected by FAIR Workflows Widget'] },
-                source: [code],
+                source: [injectStr],
             },
         });
         model.cells.insert(activeCellIndex + 1, cell);

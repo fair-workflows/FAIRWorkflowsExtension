@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { URLExt } from '@jupyterlab/coreutils';
-import { ServerConnection } from '@jupyterlab/services';
 import { debounce } from 'ts-debounce';
+import { requestAPI } from './RequestAPI';
 
 /** Properties of the SearchResult component */
 interface ISearchResultProps {
@@ -24,8 +23,8 @@ export class SearchResult extends React.Component<ISearchResultProps, {}> {
         return (
             <li key={this.props.uri} title={this.props.uri}>
                 <span className='jp-DirListing-item' onClick={this.onClick}>
-                    {this.props.description}
-                    {this.props.date}
+                    <p>{this.props.description}</p>
+                    <p>{this.props.date}</p>
                 </span>
             </li>
         );
@@ -34,12 +33,12 @@ export class SearchResult extends React.Component<ISearchResultProps, {}> {
 
 /** Properties of the FAIRSearch component */
 interface IFairSearchProps {
-    injectCode(uri: string, source: string): void;
+    injectCode(injectStr: string): void;
 }
 
 /** State of theFAIRSearch component */
 interface IFairSearchState {
-    source: 'nanopub' | 'workflowhub';
+    source: 'nanopub' | 'workflowhub' | 'step';
     searchtext: string;
     results: any;
 }
@@ -69,7 +68,24 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
      */
     onResultClick = (uri: string): void => {
         console.log('User selected:', uri);
-        this.props.injectCode(uri, this.state.source);
+
+        if (this.state.source === 'nanopub') {
+            const code = 'np = Nanopub.fetch(\'' + uri + '\')\nprint(np)';
+            this.props.injectCode(code);
+        } else if (this.state.source === 'workflowhub') {
+            const code = 'wf = Workflowhub.fetch(\'' + uri + '\')\nprint(wf)';
+            this.props.injectCode(code);
+        } else if (this.state.source === 'step') {
+            const queryParams = {'np_uri': uri};
+            requestAPI<any>('nanostep', queryParams)
+                .then(data => {
+                    console.log(data)
+                    this.props.injectCode(data)
+                })
+                .catch(reason => {
+                    console.error('Nanostep load failed:\n', reason);
+                });
+        }
     }
 
     /**
@@ -87,7 +103,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
      * Called when the search source is changed (e.g. 'nanopub' or 'workflowhub')
      */
     onSourceChange = (event: any): void => {
-        this.setState({ source: event.target.value });
+        this.setState({ source: event.target.value, results: [], searchtext: '' });
     }
 
     /**
@@ -102,10 +118,13 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
 
         if (this.state.source === 'nanopub') {
             endpoint = 'nanosearch';
-            queryParams = {search_str: this.state.searchtext};
+            queryParams = {type_of_search: 'text', search_str: this.state.searchtext};
         } else if (this.state.source === 'workflowhub') {
             endpoint = 'workflowhub';
             queryParams = {search_str: this.state.searchtext};
+        } else if (this.state.source === 'step') {
+            endpoint = 'nanosearch';
+            queryParams = {type_of_search: 'pattern', subj: '', pred: '', obj: 'https://www.omg.org/spec/BPMN/scriptTask'};
         } else {
             console.error('Source is not recognised:\n', this.state.source);
             return;
@@ -136,6 +155,10 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             searchresults = this.state.results.map( (c: any) => (
                 <SearchResult key={c.id} uri={c.url} description={c.title} date={'--'} onClick={this.onResultClick} />
             ));
+        } else if (this.state.source === 'step') {
+            searchresults = this.state.results.map( (c: any) => (
+                <SearchResult key={c.id} uri={c.np} description={c.np} date={c.date} onClick={this.onResultClick} />
+            ));
         }
 
         return (
@@ -148,6 +171,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
                             <select className='jp-mod-styled' value={this.state.source} onChange={this.onSourceChange}>
                                 <option key='select_nanopub' value='nanopub'>Nanopub</option>
                                 <option key='select_workflowhub' value='workflowhub'>Workflowhub</option>
+                                <option key='select_step' value='step'>Step</option>
                             </select>
                         </div>
                     </label>
@@ -167,41 +191,3 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
         );
     }
 }
-
-
-/**
- * Handles the search query at the specified endpoint (e.g. 'nanopub' or 'workflowhub')
- * and with the specified search parameters (provided through the 'query' dictionary).
- * Returns the results of this request to the extension backend.
- */
-async function requestAPI<T>(
-    endPoint = '',
-    query = {},
-    init: RequestInit = {}
-): Promise<T> {
-    // Make request to Jupyter API
-    const settings = ServerConnection.makeSettings();
-    const queryString = (new URLSearchParams(query)).toString();
-    const requestUrl = URLExt.join(
-        settings.baseUrl,
-        'FAIRWorkflowsExtension', // API Namespace
-        endPoint) + '?' + queryString;
-    
-    console.log('requestAPI called with ' + endPoint + ' ' + init + ', ' + requestUrl);
-
-    let response: Response;
-    try {
-        response = await ServerConnection.makeRequest(requestUrl, init, settings);
-    } catch (error) {
-        throw new ServerConnection.NetworkError(error);
-    }
-
-    const data = await response.json();
-
-    if (!response.ok) {
-        throw new ServerConnection.ResponseError(response, data.message);
-    }
-
-    return data;
-}
-
