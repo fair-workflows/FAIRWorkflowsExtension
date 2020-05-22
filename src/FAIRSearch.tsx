@@ -38,7 +38,7 @@ interface IFairSearchProps {
 
 /** State of theFAIRSearch component */
 interface IFairSearchState {
-    source: 'nanopub' | 'workflowhub' | 'step';
+    source: 'step' | 'workflow' | 'nanopub' | 'workflowhub';
     searchtext: string;
     results: any;
 }
@@ -124,7 +124,10 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             queryParams = {search_str: this.state.searchtext};
         } else if (this.state.source === 'step') {
             endpoint = 'nanosearch';
-            queryParams = {type_of_search: 'pattern', subj: '', pred: '', obj: 'https://www.omg.org/spec/BPMN/scriptTask'};
+            queryParams = {type_of_search: 'pattern', subj: '', pred: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', obj: 'https://www.omg.org/spec/BPMN/scriptTask'};
+        } else if (this.state.source === 'workflow') {
+            endpoint = 'nanosearch';
+            queryParams = {type_of_search: 'pattern', subj: '', pred: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', obj: 'http://ontologydesignpatterns.org/wiki/Ontology:DOLCE+DnS_Ultralite/workflow'};
         } else {
             console.error('Source is not recognised:\n', this.state.source);
             return;
@@ -155,7 +158,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             searchresults = this.state.results.map( (c: any) => (
                 <SearchResult key={c.id} uri={c.url} description={c.title} date={'--'} onClick={this.onResultClick} />
             ));
-        } else if (this.state.source === 'step') {
+        } else if (this.state.source === 'step' || this.state.source === 'workflow') {
             searchresults = this.state.results.map( (c: any) => (
                 <SearchResult key={c.id} uri={c.np} description={c.np} date={c.date} onClick={this.onResultClick} />
             ));
@@ -169,9 +172,10 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
                         Source
                         <div className="jp-select-wrapper jp-mod-focused">
                             <select className='jp-mod-styled' value={this.state.source} onChange={this.onSourceChange}>
+                                <option key='select_step' value='step'>Step</option>
+                                <option key='select_workflow' value='workflow'>Workflow</option>
                                 <option key='select_nanopub' value='nanopub'>Nanopub</option>
                                 <option key='select_workflowhub' value='workflowhub'>Workflowhub</option>
-                                <option key='select_step' value='step'>Step</option>
                             </select>
                         </div>
                     </label>
