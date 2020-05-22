@@ -62,27 +62,46 @@ class NanopubStepHandler(APIHandler):
         np_uri = self.get_argument('np_uri')
 
         print(np_uri)
-        np = fairworkflows.Nanopub.fetch(np_uri)
 
+        # Fetch the nanopub at the given URI
+        np = fairworkflows.Nanopub.fetch(np_uri)
         print(np)
 
-        # Get the description triple
+        # Look for first step (if exists)
+
         qres = np.data.query(
-     """SELECT DISTINCT ?code
-        WHERE {
-           ?a <http://purl.org/dc/elements/1.1/description> ?code .
-        }""")
+         """SELECT DISTINCT ?firstStepURI
+            WHERE {
+               ?a <http://purl.org/spar/pwo/hasFirstStep> ?firstStepURI .
+            }""")
 
+        qres_list = list([i for i in qres])
+        print('qres_list', qres_list)
 
-        result = list([i for i in qres])[0]
+        if len(qres_list) == 0:
+            steps = [self.get_step_from_nanopub(np.data), 'Some other step', 'And another']
+        else:
+            steps = ['No step found at nanopub ' + np_uri]
 
-        print('Returning result:', result)
-
-        ret = json.dumps(result)
+        ret = json.dumps(steps)
         self.finish(ret)
+
+    def get_step_from_nanopub(self, np_rdf):
+        # Get the description triple
+        qres = np_rdf.query(
+         """SELECT DISTINCT ?code
+            WHERE {
+               ?a <http://purl.org/dc/elements/1.1/description> ?code .
+            }""")
+
+        qres_list = list([i for i in qres])
+        result = ''
+        if len(qres_list) > 0:
+            result = qres_list[0]
+        print('Returning step:', result)
+        return result
+
 
 def nanopub_step_handler(base_url='/'):
     endpoint = url_path_join(base_url, '/nanostep')
     return endpoint, NanopubStepHandler
-
-
