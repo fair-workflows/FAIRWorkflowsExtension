@@ -5,6 +5,8 @@ from notebook.base.handlers import APIHandler
 from notebook.utils import url_path_join
 import tornado
 
+from urllib.parse import urldefrag
+
 import fairworkflows
 
 class NanopubSearchHandler(APIHandler):
@@ -68,21 +70,22 @@ class NanopubStepHandler(APIHandler):
         print(np)
 
         # Look for first step (if exists)
+        first_step_URI = self.get_first_step(np.data)
 
-        qres = np.data.query(
-         """SELECT DISTINCT ?firstStepURI
-            WHERE {
-               ?a <http://purl.org/spar/pwo/hasFirstStep> ?firstStepURI .
-            }""")
+        if first_step_URI is not None:
+            step_URIs = [first_step_URI]
+            step_URIs += self.get_subsequent_steps(np.data)
 
-        qres_list = list([i for i in qres])
-        print('qres_list', qres_list)
+            steps = []
+            for step_uri in step_URIs:
+                print(step_uri, type(step_uri))
+                step_np = fairworkflows.Nanopub.fetch(step_uri)
+                steps.append(self.get_step_from_nanopub(step_np.data))
 
-        if len(qres_list) == 0:
-            steps = [self.get_step_from_nanopub(np.data), 'Some other step', 'And another']
         else:
-            steps = ['No step found at nanopub ' + np_uri]
-
+            # If not a workflow, return the step description in this NP
+            steps = [self.get_step_from_nanopub(np.data)]
+            
         ret = json.dumps(steps)
         self.finish(ret)
 
@@ -95,12 +98,51 @@ class NanopubStepHandler(APIHandler):
             }""")
 
         qres_list = list([i for i in qres])
-        result = ''
         if len(qres_list) > 0:
             result = qres_list[0]
+        else:
+            result = '# No step found at nanopub URI: ' + np_uri
+
+
         print('Returning step:', result)
         return result
 
+    def get_first_step(self, np_rdf):
+        qres = np_rdf.query(
+         """SELECT DISTINCT ?firstStepURI
+            WHERE {
+               ?a <http://purl.org/spar/pwo/hasFirstStep> ?firstStepURI .
+            }""")
+
+        uri_list = []
+        for row in qres:
+            uri = str(row['firstStepURI'].toPython())
+            uri_without_fragment = urldefrag(uri)[0]
+            uri_list.append(uri_without_fragment)
+
+        print('uri_list', uri_list)
+        if len(uri_list) == 0:
+            return None
+        elif len(uri_list) > 1:
+            print("Warning: More than one first step declared.")
+
+        return uri_list[0]
+
+    def get_subsequent_steps(self, np_rdf):
+        qres = np_rdf.query(
+         """SELECT DISTINCT ?stepURI
+            WHERE {
+               ?a <http://ontologydesignpatterns.org/wiki/Ontology:DOLCE+DnS_Ultralite/precedes> ?stepURI .
+            }""")
+
+        uri_list = []
+        for row in qres:
+            uri = str(row['stepURI'].toPython())
+            uri_without_fragment = urldefrag(uri)[0]
+            uri_list.append(uri_without_fragment)
+
+        print('uri_list', uri_list)
+        return uri_list
 
 def nanopub_step_handler(base_url='/'):
     endpoint = url_path_join(base_url, '/nanostep')
