@@ -28,6 +28,7 @@ Note: You will need NodeJS to install the extension.
 pip install FAIRWorkflowsExtension
 jupyter lab build
 ```
+(The above should be run from the root of the ```FAIRWorkflowsExtension``` repository)
 
 ## Troubleshoot
 
