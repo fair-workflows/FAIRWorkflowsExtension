@@ -91,6 +91,7 @@ class NanopubStepHandler(APIHandler):
 
         else:
             # If not a workflow, return the step description in this NP
+            print('No first step found - assuming this np describes a step')
             steps = [self.get_step_from_nanopub(np.data)]
             
         ret = json.dumps(steps)
@@ -101,7 +102,7 @@ class NanopubStepHandler(APIHandler):
         qres = np_rdf.query(
          """SELECT DISTINCT ?code
             WHERE {
-               ?a <http://purl.org/dc/elements/1.1/description> ?code .
+               ?a <http://purl.org/dc/terms/description> ?code .
             }""")
 
         qres_list = list([i for i in qres])
@@ -118,7 +119,7 @@ class NanopubStepHandler(APIHandler):
         qres = np_rdf.query(
          """SELECT DISTINCT ?firstStepURI
             WHERE {
-               ?a <http://purl.org/spar/pwo/hasFirstStep> ?firstStepURI .
+               ?a <http://purl.org/spar/pwo#hasFirstStep> ?firstStepURI .
             }""")
 
         uri_list = []
@@ -139,7 +140,7 @@ class NanopubStepHandler(APIHandler):
         qres = np_rdf.query(
          """SELECT DISTINCT ?stepURI
             WHERE {
-               ?a <http://ontologydesignpatterns.org/wiki/Ontology:DOLCE+DnS_Ultralite/precedes> ?stepURI .
+               ?a <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#precedes> ?stepURI .
             }""")
 
         uri_list = []
