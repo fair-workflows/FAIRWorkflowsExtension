@@ -1,5 +1,5 @@
 # Install fair workflows dependency
-python3 -m pip install git+git://github.com/fair-workflows/FAIRWorkbench@add_script_task_search_to_nanopub || exit 1
+python3 -m pip install git+git://github.com/fair-workflows/FAIRWorkbench@add_nanopub_search_things_grlc || exit 1
 
 # Install server extension
 python3 -m pip install -e . || exit 1

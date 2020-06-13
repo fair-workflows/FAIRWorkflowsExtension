@@ -26,6 +26,13 @@ class NanopubSearchHandler(APIHandler):
             obj = self.get_argument('obj')
             print('Searching for pattern', subj, pred, obj)
             results = fairworkflows.Nanopub.search_pattern(subj=subj, pred=pred, obj=obj)
+        elif type_of_search == 'things':
+            thing_type = self.get_argument('thing_type')
+            searchterm = self.get_argument('searchterm')
+            print('Searching for "thing"', thing_type, searchterm)
+            if not searchterm:
+                searchterm = ' '
+            results = fairworkflows.Nanopub.search_things(thing_type=thing_type, searchterm=searchterm)
         else:
             raise ValueError(f'Unrecognized type_of_search, {type_of_search}')
 

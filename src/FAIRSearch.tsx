@@ -129,12 +129,11 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             queryParams = {type_of_search: 'pattern', subj: '', pred: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', obj: 'https://www.omg.org/spec/BPMN/scriptTask'};
         } else if (this.state.source === 'workflow') {
             endpoint = 'nanosearch';
-            queryParams = {type_of_search: 'pattern', subj: '', pred: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', obj: 'http://ontologydesignpatterns.org/wiki/Ontology:DOLCE+DnS_Ultralite/workflow'};
+            queryParams = {type_of_search: 'things', thing_type: 'http://purl.org/net/p-plan#Plan', searchterm: this.state.searchtext};
         } else {
             console.error('Source is not recognised:\n', this.state.source);
             return;
         }
- 
         requestAPI<any>(endpoint, queryParams)
             .then(data => {
                 this.setState({results: data});
@@ -160,9 +159,13 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             searchresults = this.state.results.map( (c: any) => (
                 <SearchResult key={c.id} uri={c.url} description={c.title} date={'--'} onClick={this.onResultClick} />
             ));
-        } else if (this.state.source === 'step' || this.state.source === 'workflow') {
+        } else if (this.state.source === 'step') {
             searchresults = this.state.results.map( (c: any) => (
                 <SearchResult key={c.id} uri={c.np} description={c.np} date={c.date} onClick={this.onResultClick} />
+            ));
+        } else if (this.state.source === 'workflow') {
+            searchresults = this.state.results.map( (c: any) => (
+                <SearchResult key={c.id} uri={c.np} description={c.description} date={c.date} onClick={this.onResultClick} />
             ));
         }
 
