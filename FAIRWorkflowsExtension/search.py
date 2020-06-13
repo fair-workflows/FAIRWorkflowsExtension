@@ -108,7 +108,7 @@ class NanopubStepHandler(APIHandler):
         if len(qres_list) > 0:
             result = qres_list[0]
         else:
-            result = '# No step found at nanopub URI: ' + np_rdf
+            result = '# No step description found. Nanopub rdf was:\n' + np_rdf.serialize(format='trig').decode('utf-8')
 
 
         print('Returning step:', result)
