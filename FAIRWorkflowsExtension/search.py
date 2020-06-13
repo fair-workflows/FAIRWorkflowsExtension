@@ -108,7 +108,7 @@ class NanopubStepHandler(APIHandler):
         if len(qres_list) > 0:
             result = qres_list[0]
         else:
-            result = '# No step found at nanopub URI: ' + np_uri
+            result = '# No step found at nanopub URI: ' + np_rdf
 
 
         print('Returning step:', result)
