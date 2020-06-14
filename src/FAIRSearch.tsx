@@ -81,7 +81,8 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
                 .then(data => {
                     console.log(data)
                     for (let code_step of data) {
-                        this.props.injectCode(code_step);
+                        let manualstep_code = "manualstep('" + code_step + "', completed=False, byWhom='', remarks='')";
+                        this.props.injectCode('#' + code_step + '\n' + manualstep_code);
                     }
                 })
                 .catch(reason => {

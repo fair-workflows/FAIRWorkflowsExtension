@@ -77,22 +77,22 @@ class NanopubStepHandler(APIHandler):
         print(np)
 
         # Look for first step (if exists)
-        first_step_URI = self.get_first_step(np.data)
+        first_step_URI = self.get_first_step(np.rdf)
 
         if first_step_URI is not None:
             step_URIs = [first_step_URI]
-            step_URIs += self.get_subsequent_steps(np.data)
+            step_URIs += self.get_subsequent_steps(np.rdf)
 
             steps = []
             for step_uri in step_URIs:
                 print(step_uri, type(step_uri))
                 step_np = fairworkflows.Nanopub.fetch(step_uri)
-                steps.append(self.get_step_from_nanopub(step_np.data))
+                steps.append(self.get_step_from_nanopub(step_np.rdf))
 
         else:
             # If not a workflow, return the step description in this NP
             print('No first step found - assuming this np describes a step')
-            steps = [self.get_step_from_nanopub(np.data)]
+            steps = [self.get_step_from_nanopub(np.rdf)]
             
         ret = json.dumps(steps)
         self.finish(ret)
