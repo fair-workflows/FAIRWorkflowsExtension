@@ -80,8 +80,8 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             requestAPI<any>('nanostep', queryParams)
                 .then(data => {
                     console.log(data)
-                    for (let code_step of data) {
-                        let manualstep_code = "manualstep('" + code_step + "', completed=False, byWhom='', remarks='')";
+                    for (const code_step of data) {
+                        const manualstep_code = "manualstep('" + code_step + "', completed=False, byWhom='', remarks='')";
                         this.props.injectCode('#' + code_step + '\n' + manualstep_code);
                     }
                 })
