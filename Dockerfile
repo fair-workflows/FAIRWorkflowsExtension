@@ -8,6 +8,7 @@ WORKDIR /app
 COPY . /app
 RUN conda update -n base -c defaults conda && apt-get update && apt-get install git && conda install nodejs=10.13.0 && \
     conda install -c conda-forge typescript && pip install -r requirements.txt
+
 RUN pip install git+git://github.com/fair-workflows/FAIRWorkbench@add_nanopub_search_things_grlc
 RUN pip install -e .
 RUN jupyter-serverextension enable --py FAIRWorkflowsExtension
