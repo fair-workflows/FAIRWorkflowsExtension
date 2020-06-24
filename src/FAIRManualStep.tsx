@@ -23,7 +23,7 @@ export class FAIRManualStep extends React.Component<IFairManualStepProps, IFairM
 
     onClick = (): void => {
         const manualstep_code = "manualstep('" + this.state.description + "', completed=False, byWhom='', remarks='')";
-        this.props.injectCode('#' + this.state.description + '\n' + manualstep_code);
+        this.props.injectCode('# ' + this.state.description + '\n' + manualstep_code);
     }
 
     onChange = (event: any): void => {
