@@ -1,5 +1,6 @@
 from ._version import __version__ 
-from .search import nanopub_search_handler, workflowhub_search_handler, nanopub_step_handler
+from .nanopub_handlers import nanopub_search_handler, nanopub_step_handler
+from .workflowhub_handlers import workflowhub_search_handler
 from notebook.utils import url_path_join
 
 def _jupyter_server_extension_paths():
