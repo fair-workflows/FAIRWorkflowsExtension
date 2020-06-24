@@ -110,11 +110,24 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
      */
     fetchAndInjectCWL = (uri: string): void => {
         this.setState({loading: true});
-
-        const code = 'wf = Workflowhub.fetch(\'' + uri + '\')\nprint(wf)';
-        this.props.injectCode(code);
-
-        this.setState({loading: false, results: []});
+        const queryParams = {'uri': uri};
+        requestAPI<any>('workflowhubfetch', queryParams)
+            .then(data => {
+                console.log(data)
+                for (const code_step of data) {
+                    this.props.injectCode(code_step);
+                }
+                this.setState({loading: false, results: []});
+            })
+            .catch(reason => {
+                console.error('Nanostep load failed:\n', reason);
+                this.setState({loading: false});
+            });
+ 
+        //this.setState({loading: true});
+        //const code = 'wf = Workflowhub.fetch(\'' + uri + '\')\nprint(wf)';
+        //this.props.injectCode(code);
+        //this.setState({loading: false, results: []});
     }
 
     /**
