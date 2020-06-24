@@ -39,7 +39,7 @@ interface IFairSearchProps {
 /** State of theFAIRSearch component */
 interface IFairSearchState {
     source: 'nanopub' | 'workflowhub';
-    nanopubtype: 'step' | 'plan';
+    pplantype: 'step' | 'plan';
     loading: boolean;
     searchtext: string;
     results: any;
@@ -57,7 +57,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
         super(props);
         this.state = {
             source: 'nanopub',
-            nanopubtype: 'plan',
+            pplantype: 'plan',
             loading: false,
             searchtext: '',
             results: []
@@ -85,7 +85,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
      * If found, inject the step(s) as one or more cells in the notebook. 
      */
     fetchAndInjectNanopub = (uri: string): void => {
-        if (this.state.nanopubtype === 'step' || this.state.nanopubtype === 'plan') {
+        if (this.state.pplantype === 'step' || this.state.pplantype === 'plan') {
             this.setState({loading: true});
             const queryParams = {'np_uri': uri};
             requestAPI<any>('nanostep', queryParams)
@@ -150,6 +150,13 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
     }
 
     /**
+     * Called when the pplan type is changed (e.g. 'step' or 'plan')
+     */
+    onPPlanTypeChange = (event: any): void => {
+        this.setState({ pplantype: event.target.value });
+    }
+
+    /**
      * Sends the appropriate search query to the backend, and obtains
      * back the search results.
      */
@@ -161,9 +168,9 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
 
         if (this.state.source === 'nanopub') {
             endpoint = 'nanosearch';
-            if (this.state.nanopubtype === 'step') {
+            if (this.state.pplantype === 'step') {
                 queryParams = {type_of_search: 'things', thing_type: 'https://purl.org/net/p-plan#Step', searchterm: this.state.searchtext};
-            } else if (this.state.nanopubtype === 'plan') {
+            } else if (this.state.pplantype === 'plan') {
                 queryParams = {type_of_search: 'things', thing_type: 'http://purl.org/net/p-plan#Plan', searchterm: this.state.searchtext};
             }
         } else if (this.state.source === 'workflowhub') {
@@ -204,7 +211,21 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             }
 
             searcharea = (<ul className="jp-DirListing-content">{searchresults}</ul>);
+        }
 
+        let pplan_type_selection = null;
+        if (this.state.source === 'nanopub') {
+            pplan_type_selection = (
+                <label>
+                    Type
+                    <div className="jp-select-wrapper jp-mod-focused">
+                        <select className='jp-mod-styled' value={this.state.pplantype} onChange={this.onPPlanTypeChange}>
+                            <option key='select_step' value='step'>#Step</option>
+                            <option key='select_plan' value='plan'>#Plan</option>
+                        </select>
+                    </div>
+                </label>
+            );
         }
 
         return (
@@ -220,6 +241,9 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
                             </select>
                         </div>
                     </label>
+
+                    {pplan_type_selection}
+
                     <label>
                         Search
                         <div className="jp-select-wrapper">
