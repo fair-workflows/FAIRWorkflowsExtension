@@ -91,6 +91,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             requestAPI<any>('nanostep', queryParams)
                 .then(data => {
                     console.log(data)
+                    this.props.injectCode('from fairworkflows import manualstep')
                     for (const code_step of data) {
                         const manualstep_code = "manualstep('" + code_step + "', completed=False, byWhom='', remarks='')";
                         this.props.injectCode('#' + code_step + '\n' + manualstep_code);
