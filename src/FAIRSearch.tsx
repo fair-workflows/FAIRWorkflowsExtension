@@ -176,7 +176,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
         console.log('Rendering FAIRSearch component')
 
         // Display the results in the appropriate format for either nanopub or workflowhub searches
-        let searcharea = (<p>Loading...</p>);
+        let searcharea = (<span className="jp-fairwidget-busy">Loading...</span>);
         if (this.state.loading === false) {
             let searchresults = [];
             if (this.state.source === 'nanopub') {

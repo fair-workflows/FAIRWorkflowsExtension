@@ -8,3 +8,8 @@
   font-size: var(--jp-ui-font-size1);
   overflow: auto;
 }
+
+.jp-fairwidget-busy {
+  color: var(--jp-info-color1);
+  padding: 8px 12px;
+}
