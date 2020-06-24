@@ -38,7 +38,9 @@ interface IFairSearchProps {
 
 /** State of theFAIRSearch component */
 interface IFairSearchState {
-    source: 'step' | 'workflow' | 'nanopub' | 'workflowhub';
+    source: 'nanopub' | 'workflowhub';
+    nanopubtype: 'step' | 'plan';
+    loading: boolean;
     searchtext: string;
     results: any;
 }
@@ -55,6 +57,8 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
         super(props);
         this.state = {
             source: 'nanopub',
+            nanopubtype: 'plan',
+            loading: false,
             searchtext: '',
             results: []
         };
@@ -70,12 +74,19 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
         console.log('User selected:', uri);
 
         if (this.state.source === 'nanopub') {
-            const code = 'np = Nanopub.fetch(\'' + uri + '\')\nprint(np)';
-            this.props.injectCode(code);
+            this.fetchAndInjectNanopub(uri);
         } else if (this.state.source === 'workflowhub') {
-            const code = 'wf = Workflowhub.fetch(\'' + uri + '\')\nprint(wf)';
-            this.props.injectCode(code);
-        } else if (this.state.source === 'step' || this.state.source === 'workflow') {
+            this.fetchAndInjectCWL(uri);
+        }
+    }
+
+    /**
+     * Fetch specified nanopub (given by URI) and extract the Plex step or workflow contained within.
+     * If found, inject the step(s) as one or more cells in the notebook. 
+     */
+    fetchAndInjectNanopub = (uri: string): void => {
+        if (this.state.nanopubtype === 'step' || this.state.nanopubtype === 'plan') {
+            this.setState({loading: true});
             const queryParams = {'np_uri': uri};
             requestAPI<any>('nanostep', queryParams)
                 .then(data => {
@@ -84,11 +95,26 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
                         const manualstep_code = "manualstep('" + code_step + "', completed=False, byWhom='', remarks='')";
                         this.props.injectCode('#' + code_step + '\n' + manualstep_code);
                     }
+                    this.setState({loading: false, results: []});
                 })
                 .catch(reason => {
                     console.error('Nanostep load failed:\n', reason);
+                    this.setState({loading: false});
                 });
         }
+    }
+
+    /**
+     * Fetch RO-Crate (at specified URI) and extract the CWL workflow contained within.
+     * If found, inject as one or more cells in the notebook. 
+     */
+    fetchAndInjectCWL = (uri: string): void => {
+        this.setState({loading: true});
+
+        const code = 'wf = Workflowhub.fetch(\'' + uri + '\')\nprint(wf)';
+        this.props.injectCode(code);
+
+        this.setState({loading: false, results: []});
     }
 
     /**
@@ -121,16 +147,14 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
 
         if (this.state.source === 'nanopub') {
             endpoint = 'nanosearch';
-            queryParams = {type_of_search: 'text', search_str: this.state.searchtext};
+            if (this.state.nanopubtype === 'step') {
+                queryParams = {type_of_search: 'things', thing_type: 'https://purl.org/net/p-plan#Step', searchterm: this.state.searchtext};
+            } else if (this.state.nanopubtype === 'plan') {
+                queryParams = {type_of_search: 'things', thing_type: 'http://purl.org/net/p-plan#Plan', searchterm: this.state.searchtext};
+            }
         } else if (this.state.source === 'workflowhub') {
             endpoint = 'workflowhub';
             queryParams = {search_str: this.state.searchtext};
-        } else if (this.state.source === 'step') {
-            endpoint = 'nanosearch';
-            queryParams = {type_of_search: 'pattern', subj: '', pred: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', obj: 'https://www.omg.org/spec/BPMN/scriptTask'};
-        } else if (this.state.source === 'workflow') {
-            endpoint = 'nanosearch';
-            queryParams = {type_of_search: 'things', thing_type: 'http://purl.org/net/p-plan#Plan', searchterm: this.state.searchtext};
         } else {
             console.error('Source is not recognised:\n', this.state.source);
             return;
@@ -151,23 +175,22 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
     render(): React.ReactElement {
         console.log('Rendering FAIRSearch component')
 
-        let searchresults = [];
-        if (this.state.source === 'nanopub') {
-            searchresults = this.state.results.map( (c: any) => (
-                <SearchResult key={c.id} uri={c.np} description={c.v} date={c.date} onClick={this.onResultClick} />
-            ));
-        } else if (this.state.source === 'workflowhub') {
-            searchresults = this.state.results.map( (c: any) => (
-                <SearchResult key={c.id} uri={c.url} description={c.title} date={'--'} onClick={this.onResultClick} />
-            ));
-        } else if (this.state.source === 'step') {
-            searchresults = this.state.results.map( (c: any) => (
-                <SearchResult key={c.id} uri={c.np} description={c.np} date={c.date} onClick={this.onResultClick} />
-            ));
-        } else if (this.state.source === 'workflow') {
-            searchresults = this.state.results.map( (c: any) => (
-                <SearchResult key={c.id} uri={c.np} description={c.description} date={c.date} onClick={this.onResultClick} />
-            ));
+        // Display the results in the appropriate format for either nanopub or workflowhub searches
+        let searcharea = (<p>Loading...</p>);
+        if (this.state.loading === false) {
+            let searchresults = [];
+            if (this.state.source === 'nanopub') {
+                searchresults = this.state.results.map( (c: any) => (
+                    <SearchResult key={c.id} uri={c.np} description={c.description} date={c.date} onClick={this.onResultClick} />
+                ));
+            } else if (this.state.source === 'workflowhub') {
+                searchresults = this.state.results.map( (c: any) => (
+                    <SearchResult key={c.id} uri={c.url} description={c.title} date={'--'} onClick={this.onResultClick} />
+                ));
+            }
+
+            searcharea = (<ul className="jp-DirListing-content">{searchresults}</ul>);
+
         }
 
         return (
@@ -178,8 +201,6 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
                         Source
                         <div className="jp-select-wrapper jp-mod-focused">
                             <select className='jp-mod-styled' value={this.state.source} onChange={this.onSourceChange}>
-                                <option key='select_step' value='step'>Step</option>
-                                <option key='select_workflow' value='workflow'>Workflow</option>
                                 <option key='select_nanopub' value='nanopub'>Nanopub</option>
                                 <option key='select_workflowhub' value='workflowhub'>Workflowhub</option>
                             </select>
@@ -193,11 +214,11 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
                     </label>
                 </div>
                 <div className="p-Widget jp-DirListing">
-                    <ul className="jp-DirListing-content">
-                        {searchresults}
-                    </ul>
+                    {searcharea}
                 </div>
             </div>
         );
     }
 }
+
+
