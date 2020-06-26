@@ -12,4 +12,3 @@ services:
     ports:
       - 8080:8080
     command: python -m http.server --directory /web 8080
-
