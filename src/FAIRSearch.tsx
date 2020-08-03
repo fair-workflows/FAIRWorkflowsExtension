@@ -33,7 +33,7 @@ export class SearchResult extends React.Component<ISearchResultProps, {}> {
 
 /** Properties of the FAIRSearch component */
 interface IFairSearchProps {
-    injectCode(injectStr: string): void;
+    injectCode(injectStr: string, nanopubURI: string): void;
 }
 
 /** State of theFAIRSearch component */
@@ -91,10 +91,10 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             requestAPI<any>('nanostep', queryParams)
                 .then(data => {
                     console.log(data)
-                    this.props.injectCode('from fairworkflows import manualstep')
+                    this.props.injectCode('from fairworkflows import manualstep', '')
                     for (const code_step of data) {
-                        const manualstep_code = "manualstep('" + code_step + "', completed=False, byWhom='', remarks='')";
-                        this.props.injectCode('#' + code_step + '\n' + manualstep_code);
+                        const manualstep_code = "manualstep('" + code_step.description + "', completed=False, byWhom='', remarks='')";
+                        this.props.injectCode('#' + code_step.description + '\n' + manualstep_code, code_step.nanopubURI);
                     }
                     this.setState({loading: false, results: []});
                 })
@@ -116,7 +116,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             .then(data => {
                 console.log(data)
                 for (const code_step of data) {
-                    this.props.injectCode(code_step);
+                    this.props.injectCode(code_step, uri);
                 }
                 this.setState({loading: false, results: []});
             })

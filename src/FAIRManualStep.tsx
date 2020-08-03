@@ -2,7 +2,7 @@ import * as React from 'react';
 
 /** Properties of the FAIRManualStep component */
 interface IFairManualStepProps {
-    injectCode(injectStr: string): void;
+    injectCode(injectStr: string, nanopubURI: string): void;
 }
 
 /** State of the FAIRManualStep component */
@@ -23,7 +23,7 @@ export class FAIRManualStep extends React.Component<IFairManualStepProps, IFairM
 
     onClick = (): void => {
         const manualstep_code = "manualstep('" + this.state.description + "', completed=False, byWhom='', remarks='')";
-        this.props.injectCode('# ' + this.state.description + '\n' + manualstep_code);
+        this.props.injectCode('# ' + this.state.description + '\n' + manualstep_code, '');
     }
 
     onChange = (event: any): void => {

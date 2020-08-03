@@ -69,7 +69,7 @@ class NanopubStepHandler(APIHandler):
             for step_uri in step_URIs:
                 print(step_uri, type(step_uri))
                 step_np = fairworkflows.Nanopub.fetch(step_uri)
-                steps.append(self.get_step_from_nanopub(step_np.rdf))
+                steps.append({'nanopubURI': step_uri, 'description': self.get_step_from_nanopub(step_np.rdf)})
 
         else:
             # If not a workflow, return the step description in this NP
@@ -92,7 +92,6 @@ class NanopubStepHandler(APIHandler):
             result = qres_list[0]
         else:
             result = '# No step description found. Nanopub rdf was:\n' + np_rdf.serialize(format='trig').decode('utf-8')
-
 
         print('Returning step:', result)
         return result

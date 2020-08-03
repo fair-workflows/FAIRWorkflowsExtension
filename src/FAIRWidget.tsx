@@ -36,7 +36,7 @@ export class FAIRWorkflowsWidget extends Widget {
             </div>, this.node);        
     }
 
-    injectCode = (injectStr: string): void => {
+    injectCode = (injectStr: string, nanopubURI: string): void => {
         if (!this.tracker.currentWidget) {
             showErrorMessage('Cannot inject code into cell without an active notebook', {});
             return;
@@ -48,11 +48,14 @@ export class FAIRWorkflowsWidget extends Widget {
             showErrorMessage('Unable to inject cell into read-only notebook', {});
         }
 
+        // Construct default cell metadata (simply a tag saying the contents were injected by this extension)
+        var cellMetadata = {trusted: false, collapsed: false, tags: ['Injected by FAIR Workflows Widget'], nanopubURI: nanopubURI}
+
         const activeCellIndex = notebook.activeCellIndex;
         const cell = new CodeCellModel({
             cell: {
                 cell_type: 'code',
-                metadata: { trusted: false, collapsed: false, tags: ['Injected by FAIR Workflows Widget'] },
+                metadata: cellMetadata,
                 source: [injectStr],
             },
         });
