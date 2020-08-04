@@ -7,6 +7,8 @@ import tornado
 
 from urllib.parse import urldefrag
 
+import rdflib
+
 import fairworkflows
 
 class NanopubSearchHandler(APIHandler):
@@ -42,6 +44,31 @@ class NanopubSearchHandler(APIHandler):
 def nanopub_search_handler(base_url='/'):
     endpoint = url_path_join(base_url, '/nanosearch')
     return endpoint, NanopubSearchHandler
+
+
+
+class NanopublishHandler(APIHandler):
+
+    @tornado.web.authenticated
+    def get(self):
+
+        derived_from = rdflib.term.URIRef(self.get_argument('derived_from'))
+        description = self.get_argument('description')
+
+        step_uri = rdflib.term.URIRef('http://purl.org/nanostep#step')
+
+        rdf = rdflib.Graph()
+        rdf.add((step_uri, rdflib.term.URIRef('http://purl.org/dc/terms/description'), rdflib.term.Literal(description)))
+
+        published_URI = fairworkflows.Nanopub.publish(rdf, introduces_concept=step_uri, derived_from=derived_from)
+
+        ret = json.dumps({'published_URI': published_URI})
+        self.finish(ret)
+
+def nanopublish_handler(base_url='/'):
+    endpoint = url_path_join(base_url, '/nanopublish')
+    return endpoint, NanopublishHandler
+
 
 
 

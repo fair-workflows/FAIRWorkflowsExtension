@@ -1,8 +1,10 @@
 import * as React from 'react';
+import { requestAPI } from './RequestAPI';
 
 /** Properties of the FAIRManualStep component */
 interface IFairManualStepProps {
     injectCode(injectStr: string, nanopubURI: string): void;
+    getSelectedCellContents(): any;
 }
 
 /** State of the FAIRManualStep component */
@@ -26,6 +28,22 @@ export class FAIRManualStep extends React.Component<IFairManualStepProps, IFairM
         this.props.injectCode('# ' + this.state.description + '\n' + manualstep_code, '');
     }
 
+    publish = (): void => {
+        var content = this.props.getSelectedCellContents();
+        var nanopubURI = content.metadata.get('nanopubURI');
+        var description = content.text;
+
+        const queryParams = {'derived_from': nanopubURI, 'description': description};
+        requestAPI<any>('nanopublish', queryParams)
+            .then(data => {
+                    console.log(data);
+                })
+                .catch(reason => {
+                    console.error('Nanopublish failed:\n', reason);
+                });
+        
+    }
+
     onChange = (event: any): void => {
         this.setState({ description: event.target.value });
     }
@@ -41,6 +59,7 @@ export class FAIRManualStep extends React.Component<IFairManualStepProps, IFairM
                             <input type="search" id="manualstepdescription" name="manualstepdescription" onChange={this.onChange} value={this.state.description} />
                             <button type="button" onClick={this.onClick}>Add step</button>
                         </div>
+                        <button type="button" onClick={this.publish}>Publish</button>
                     </label>
                 </div>
             </div>

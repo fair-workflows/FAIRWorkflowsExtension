@@ -32,7 +32,7 @@ export class FAIRWorkflowsWidget extends Widget {
         ReactDOM.render(
             <div>
                 <FAIRSearch injectCode={this.injectCode} />
-                <FAIRManualStep injectCode={this.injectCode} />
+                <FAIRManualStep injectCode={this.injectCode} getSelectedCellContents={this.getSelectedCellContents} />
             </div>, this.node);        
     }
 
@@ -62,4 +62,21 @@ export class FAIRWorkflowsWidget extends Widget {
         model.cells.insert(activeCellIndex + 1, cell);
         NotebookActions.selectBelow(notebook);
     }
+
+    getSelectedCellContents = (): any => {
+        if (!this.tracker.currentWidget) {
+            showErrorMessage('Cannot inspect cell contents without an active notebook', {});
+            return;
+        }
+        const notebook = this.tracker.currentWidget.content;
+
+        const model = notebook.model;
+
+        const activeCellIndex = notebook.activeCellIndex;
+        var content = {metadata: model.cells.get(activeCellIndex).metadata, text: model.cells.get(activeCellIndex).value.text};
+        console.log(content);
+        
+        return content;
+    }
+
 }
