@@ -49,7 +49,7 @@ export class FAIRWorkflowsWidget extends Widget {
         }
 
         // Construct default cell metadata (simply a tag saying the contents were injected by this extension)
-        var cellMetadata = {trusted: false, collapsed: false, tags: ['Injected by FAIR Workflows Widget'], nanopubURI: nanopubURI}
+        const cellMetadata = {trusted: false, collapsed: false, tags: ['Injected by FAIR Workflows Widget'], nanopubURI: nanopubURI}
 
         const activeCellIndex = notebook.activeCellIndex;
         const cell = new CodeCellModel({
@@ -73,7 +73,7 @@ export class FAIRWorkflowsWidget extends Widget {
         const model = notebook.model;
 
         const activeCellIndex = notebook.activeCellIndex;
-        var content = {metadata: model.cells.get(activeCellIndex).metadata, text: model.cells.get(activeCellIndex).value.text};
+        const content = {metadata: model.cells.get(activeCellIndex).metadata, text: model.cells.get(activeCellIndex).value.text};
         console.log(content);
         
         return content;

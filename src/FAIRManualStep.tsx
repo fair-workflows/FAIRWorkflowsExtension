@@ -29,18 +29,18 @@ export class FAIRManualStep extends React.Component<IFairManualStepProps, IFairM
     }
 
     publish = (): void => {
-        var content = this.props.getSelectedCellContents();
-        var nanopubURI = content.metadata.get('nanopubURI');
-        var description = content.text;
+        const content = this.props.getSelectedCellContents();
+        const nanopubURI = content.metadata.get('nanopubURI');
+        const description = content.text;
 
         const queryParams = {'derived_from': nanopubURI, 'description': description};
         requestAPI<any>('nanopublish', queryParams)
             .then(data => {
-                    console.log(data);
-                })
-                .catch(reason => {
-                    console.error('Nanopublish failed:\n', reason);
-                });
+                console.log(data);
+            })
+            .catch(reason => {
+                console.error('Nanopublish failed:\n', reason);
+            });
         
     }
 
