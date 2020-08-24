@@ -38,7 +38,7 @@ interface IFairSearchProps {
 
 /** State of theFAIRSearch component */
 interface IFairSearchState {
-    source: 'nanopub' | 'workflowhub';
+    source: 'nanopub';
     pplantype: 'step' | 'plan';
     loading: boolean;
     searchtext: string;
@@ -47,7 +47,7 @@ interface IFairSearchState {
 
 
 /**
- * A React Component adding ability to search the nanopub and workflowhub servers.
+ * A React Component adding ability to search the nanopub servers.
  * Search results are obtained through requests to the extension backend (running the FAIRWorkflowsExtension python lib)
  * Search input through the UI is debounced (triggered after 500 ms of inactivity). 
  */
@@ -75,8 +75,6 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
 
         if (this.state.source === 'nanopub') {
             this.fetchAndInjectNanopub(uri);
-        } else if (this.state.source === 'workflowhub') {
-            this.fetchAndInjectCWL(uri);
         }
     }
 
@@ -106,32 +104,6 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
     }
 
     /**
-     * Fetch RO-Crate (at specified URI) and extract the CWL workflow contained within.
-     * If found, inject as one or more cells in the notebook. 
-     */
-    fetchAndInjectCWL = (uri: string): void => {
-        this.setState({loading: true});
-        const queryParams = {'uri': uri};
-        requestAPI<any>('workflowhubfetch', queryParams)
-            .then(data => {
-                console.log(data)
-                for (const code_step of data) {
-                    this.props.injectCode(code_step, uri);
-                }
-                this.setState({loading: false, results: []});
-            })
-            .catch(reason => {
-                console.error('Nanostep load failed:\n', reason);
-                this.setState({loading: false});
-            });
- 
-        //this.setState({loading: true});
-        //const code = 'wf = Workflowhub.fetch(\'' + uri + '\')\nprint(wf)';
-        //this.props.injectCode(code);
-        //this.setState({loading: false, results: []});
-    }
-
-    /**
      * Called when the search entry input changes. The searching is debounced,
      * triggering after 500ms of inactivity, following this change. This is to
      * reduce the number of search requests going out, while maintaining a 
@@ -143,7 +115,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
     }
 
     /**
-     * Called when the search source is changed (e.g. 'nanopub' or 'workflowhub')
+     * Called when the search source is changed (e.g. 'nanopub' or 'fairdatapoint')
      */
     onSourceChange = (event: any): void => {
         this.setState({ source: event.target.value, results: [], searchtext: '' });
@@ -173,9 +145,6 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             } else if (this.state.pplantype === 'plan') {
                 queryParams = {type_of_search: 'things', thing_type: 'http://purl.org/net/p-plan#Plan', searchterm: this.state.searchtext};
             }
-        } else if (this.state.source === 'workflowhub') {
-            endpoint = 'workflowhub';
-            queryParams = {search_str: this.state.searchtext};
         } else {
             console.error('Source is not recognised:\n', this.state.source);
             return;
@@ -196,17 +165,13 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
     render(): React.ReactElement {
         console.log('Rendering FAIRSearch component')
 
-        // Display the results in the appropriate format for either nanopub or workflowhub searches
+        // Display the results in the appropriate format for either nanopub (or other) searches
         let searcharea = (<span className="jp-fairwidget-busy">Loading...</span>);
         if (this.state.loading === false) {
             let searchresults = [];
             if (this.state.source === 'nanopub') {
                 searchresults = this.state.results.map( (c: any) => (
                     <SearchResult key={c.id} uri={c.np} description={c.description} date={c.date} onClick={this.onResultClick} />
-                ));
-            } else if (this.state.source === 'workflowhub') {
-                searchresults = this.state.results.map( (c: any) => (
-                    <SearchResult key={c.id} uri={c.url} description={c.title} date={'--'} onClick={this.onResultClick} />
                 ));
             }
 
@@ -237,7 +202,6 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
                         <div className="jp-select-wrapper jp-mod-focused">
                             <select className='jp-mod-styled' value={this.state.source} onChange={this.onSourceChange}>
                                 <option key='select_nanopub' value='nanopub'>Nanopub</option>
-                                <option key='select_workflowhub' value='workflowhub'>Workflowhub</option>
                             </select>
                         </div>
                     </label>

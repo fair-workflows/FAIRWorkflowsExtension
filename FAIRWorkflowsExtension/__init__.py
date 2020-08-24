@@ -1,6 +1,5 @@
 from ._version import __version__ 
 from .nanopub_handlers import nanopub_search_handler, nanopublish_handler, nanopub_step_handler
-from .workflowhub_handlers import workflowhub_search_handler, workflowhub_fetch_handler
 from notebook.utils import url_path_join
 
 def _jupyter_server_extension_paths():
@@ -20,9 +19,7 @@ def load_jupyter_server_extension(nb_server_app):
     handlers = [
         nanopub_search_handler(base_url),
         nanopublish_handler(base_url),
-        nanopub_step_handler(base_url),
-        workflowhub_search_handler(base_url),
-        workflowhub_fetch_handler(base_url)
+        nanopub_step_handler(base_url)
     ]
  
     print('Registering handlers:', handlers)
