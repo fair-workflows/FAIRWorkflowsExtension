@@ -141,7 +141,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
         if (this.state.source === 'nanopub') {
             endpoint = 'nanosearch';
             if (this.state.pplantype === 'step') {
-                queryParams = {type_of_search: 'things', thing_type: 'https://purl.org/net/p-plan#Step', searchterm: this.state.searchtext};
+                queryParams = {type_of_search: 'things', thing_type: 'http://purl.org/net/p-plan#Step', searchterm: this.state.searchtext};
             } else if (this.state.pplantype === 'plan') {
                 queryParams = {type_of_search: 'things', thing_type: 'http://purl.org/net/p-plan#Plan', searchterm: this.state.searchtext};
             }
