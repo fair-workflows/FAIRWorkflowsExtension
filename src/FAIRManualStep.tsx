@@ -59,7 +59,10 @@ export class FAIRManualStep extends React.Component<IFairManualStepProps, IFairM
                             <input type="search" id="manualstepdescription" name="manualstepdescription" onChange={this.onChange} value={this.state.description} />
                             <button type="button" onClick={this.onClick}>Add step</button>
                         </div>
-                        <button type="button" onClick={this.publish}>Publish</button>
+                    </label>
+                    <header className="jp-RunningSessions-sectionHeader"><h2>FAIR Publish</h2></header>
+                    <label>
+                        <button type="button" onClick={this.publish}>Publish Cell</button>
                     </label>
                 </div>
             </div>
