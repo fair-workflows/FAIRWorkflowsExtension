@@ -23,7 +23,7 @@ jobs:
       run: |
         python -m pip install wheel
         python -m pip install jupyterlab
-        python -m pip install git+git://github.com/fair-workflows/FAIRWorkbench@fairworkflows 
+        python -m pip install git+git://github.com/fair-workflows/FAIRWorkbench@add_nanopub_search_things_grlc
     - name: Build the extension
       run: |
         jlpm

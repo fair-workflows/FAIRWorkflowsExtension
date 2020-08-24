@@ -32,11 +32,11 @@ export class FAIRWorkflowsWidget extends Widget {
         ReactDOM.render(
             <div>
                 <FAIRSearch injectCode={this.injectCode} />
-                <FAIRManualStep injectCode={this.injectCode} />
+                <FAIRManualStep injectCode={this.injectCode} getSelectedCellContents={this.getSelectedCellContents} />
             </div>, this.node);        
     }
 
-    injectCode = (injectStr: string): void => {
+    injectCode = (injectStr: string, nanopubURI: string): void => {
         if (!this.tracker.currentWidget) {
             showErrorMessage('Cannot inject code into cell without an active notebook', {});
             return;
@@ -48,15 +48,35 @@ export class FAIRWorkflowsWidget extends Widget {
             showErrorMessage('Unable to inject cell into read-only notebook', {});
         }
 
+        // Construct default cell metadata (simply a tag saying the contents were injected by this extension)
+        const cellMetadata = {trusted: false, collapsed: false, tags: ['Injected by FAIR Workflows Widget'], nanopubURI: nanopubURI}
+
         const activeCellIndex = notebook.activeCellIndex;
         const cell = new CodeCellModel({
             cell: {
                 cell_type: 'code',
-                metadata: { trusted: false, collapsed: false, tags: ['Injected by FAIR Workflows Widget'] },
+                metadata: cellMetadata,
                 source: [injectStr],
             },
         });
         model.cells.insert(activeCellIndex + 1, cell);
         NotebookActions.selectBelow(notebook);
     }
+
+    getSelectedCellContents = (): any => {
+        if (!this.tracker.currentWidget) {
+            showErrorMessage('Cannot inspect cell contents without an active notebook', {});
+            return;
+        }
+        const notebook = this.tracker.currentWidget.content;
+
+        const model = notebook.model;
+
+        const activeCellIndex = notebook.activeCellIndex;
+        const content = {metadata: model.cells.get(activeCellIndex).metadata, text: model.cells.get(activeCellIndex).value.text};
+        console.log(content);
+        
+        return content;
+    }
+
 }

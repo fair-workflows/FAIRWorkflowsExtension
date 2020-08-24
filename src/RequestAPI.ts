@@ -2,7 +2,7 @@ import { URLExt } from '@jupyterlab/coreutils';
 import { ServerConnection } from '@jupyterlab/services';
 
 /**
- * Handles the search query at the specified endpoint (e.g. 'nanopub' or 'workflowhub')
+ * Handles the search query at the specified endpoint (e.g. 'nanopub' or 'fairdatapoint')
  * and with the specified search parameters (provided through the 'query' dictionary).
  * Returns the results of this request to the extension backend.
  */

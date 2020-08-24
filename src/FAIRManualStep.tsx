@@ -1,8 +1,10 @@
 import * as React from 'react';
+import { requestAPI } from './RequestAPI';
 
 /** Properties of the FAIRManualStep component */
 interface IFairManualStepProps {
-    injectCode(injectStr: string): void;
+    injectCode(injectStr: string, nanopubURI: string): void;
+    getSelectedCellContents(): any;
 }
 
 /** State of the FAIRManualStep component */
@@ -23,7 +25,23 @@ export class FAIRManualStep extends React.Component<IFairManualStepProps, IFairM
 
     onClick = (): void => {
         const manualstep_code = "manualstep('" + this.state.description + "', completed=False, byWhom='', remarks='')";
-        this.props.injectCode('# ' + this.state.description + '\n' + manualstep_code);
+        this.props.injectCode('# ' + this.state.description + '\n' + manualstep_code, '');
+    }
+
+    publish = (): void => {
+        const content = this.props.getSelectedCellContents();
+        const nanopubURI = content.metadata.get('nanopubURI');
+        const description = content.text;
+
+        const queryParams = {'derived_from': nanopubURI, 'description': description};
+        requestAPI<any>('nanopublish', queryParams)
+            .then(data => {
+                console.log(data);
+            })
+            .catch(reason => {
+                console.error('Nanopublish failed:\n', reason);
+            });
+        
     }
 
     onChange = (event: any): void => {
@@ -41,6 +59,10 @@ export class FAIRManualStep extends React.Component<IFairManualStepProps, IFairM
                             <input type="search" id="manualstepdescription" name="manualstepdescription" onChange={this.onChange} value={this.state.description} />
                             <button type="button" onClick={this.onClick}>Add step</button>
                         </div>
+                    </label>
+                    <header className="jp-RunningSessions-sectionHeader"><h2>FAIR Publish</h2></header>
+                    <label>
+                        <button type="button" onClick={this.publish}>Publish Cell</button>
                     </label>
                 </div>
             </div>

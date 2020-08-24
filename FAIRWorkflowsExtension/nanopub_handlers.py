@@ -7,6 +7,8 @@ import tornado
 
 from urllib.parse import urldefrag
 
+import rdflib
+
 import fairworkflows
 
 class NanopubSearchHandler(APIHandler):
@@ -45,6 +47,31 @@ def nanopub_search_handler(base_url='/'):
 
 
 
+class NanopublishHandler(APIHandler):
+
+    @tornado.web.authenticated
+    def get(self):
+
+        derived_from = rdflib.term.URIRef(self.get_argument('derived_from'))
+        description = self.get_argument('description')
+
+        step_uri = rdflib.term.URIRef('http://purl.org/nanostep#step')
+
+        rdf = rdflib.Graph()
+        rdf.add((step_uri, rdflib.term.URIRef('http://purl.org/dc/terms/description'), rdflib.term.Literal(description)))
+
+        published_URI = fairworkflows.Nanopub.publish(rdf, introduces_concept=step_uri, derived_from=derived_from)
+
+        ret = json.dumps({'published_URI': published_URI})
+        self.finish(ret)
+
+def nanopublish_handler(base_url='/'):
+    endpoint = url_path_join(base_url, '/nanopublish')
+    return endpoint, NanopublishHandler
+
+
+
+
 class NanopubStepHandler(APIHandler):
 
     @tornado.web.authenticated
@@ -69,12 +96,12 @@ class NanopubStepHandler(APIHandler):
             for step_uri in step_URIs:
                 print(step_uri, type(step_uri))
                 step_np = fairworkflows.Nanopub.fetch(step_uri)
-                steps.append(self.get_step_from_nanopub(step_np.rdf))
+                steps.append({'nanopubURI': step_uri, 'description': self.get_step_from_nanopub(step_np.rdf)})
 
         else:
             # If not a workflow, return the step description in this NP
             print('No first step found - assuming this np describes a step')
-            steps = [self.get_step_from_nanopub(np.rdf)]
+            steps = [{'nanopubURI': np_uri, 'description': self.get_step_from_nanopub(np.rdf)}]
             
         ret = json.dumps(steps)
         self.finish(ret)
@@ -92,7 +119,6 @@ class NanopubStepHandler(APIHandler):
             result = qres_list[0]
         else:
             result = '# No step description found. Nanopub rdf was:\n' + np_rdf.serialize(format='trig').decode('utf-8')
-
 
         print('Returning step:', result)
         return result
