@@ -101,7 +101,7 @@ class NanopubStepHandler(APIHandler):
         else:
             # If not a workflow, return the step description in this NP
             print('No first step found - assuming this np describes a step')
-            steps = [self.get_step_from_nanopub(np.rdf)]
+            steps = [{'nanopubURI': np_uri, 'description': self.get_step_from_nanopub(np.rdf)}]
             
         ret = json.dumps(steps)
         self.finish(ret)
