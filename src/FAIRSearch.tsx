@@ -19,6 +19,7 @@ export class SearchResult extends React.Component<ISearchResultProps, {}> {
     onClick = (): void => {
         this.props.onClick(this.props.uri);
     }
+
     render(): React.ReactElement {
         return (
             <li key={this.props.uri} title={this.props.uri}>
@@ -40,6 +41,7 @@ interface IFairSearchProps {
 interface IFairSearchState {
     source: 'nanopub';
     pplantype: 'step' | 'plan';
+    injectiontype: 'python' | 'raw';
     loading: boolean;
     searchtext: string;
     results: any;
@@ -57,7 +59,8 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
         super(props);
         this.state = {
             source: 'nanopub',
-            pplantype: 'plan',
+            pplantype: 'step',
+            injectiontype: 'python',
             loading: false,
             searchtext: '',
             results: []
@@ -129,6 +132,13 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
     }
 
     /**
+     * Called when the injection type is changed (e.g. 'python' or 'raw')
+     */
+    onInjectionTypeChange = (event: any): void => {
+        this.setState({ injectiontype: event.target.value });
+    }
+
+    /**
      * Sends the appropriate search query to the backend, and obtains
      * back the search results.
      */
@@ -193,6 +203,23 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             );
         }
 
+
+        let injection_type_selection = null;
+        if (this.state.loading === false) {
+            injection_type_selection = (
+                <label>
+                    Inject
+                    <div className="jp-select-wrapper jp-mod-focused">
+                        <select className='jp-mod-styled' value={this.state.injectiontype} onChange={this.onInjectionTypeChange}>
+                            <option key='select_python' value='python'>python</option>
+                            <option key='select_raw' value='raw'>raw</option>
+                       </select>
+                    </div>
+                </label>
+            );
+        }
+
+
         return (
             <div className="lm-Widget p-Widget">
                 <div className="jp-KeySelector jp-NotebookTools-tool p-Widget lm-Widget" >
@@ -215,6 +242,8 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
                         </div>
                     </label>
                 </div>
+
+                {injection_type_selection}
                 <div className="p-Widget jp-DirListing">
                     {searcharea}
                 </div>
