@@ -19,6 +19,7 @@ export class SearchResult extends React.Component<ISearchResultProps, {}> {
     onClick = (): void => {
         this.props.onClick(this.props.uri);
     }
+
     render(): React.ReactElement {
         return (
             <li key={this.props.uri} title={this.props.uri}>
@@ -40,6 +41,7 @@ interface IFairSearchProps {
 interface IFairSearchState {
     source: 'nanopub';
     pplantype: 'step' | 'plan';
+    injectiontype: 'python' | 'raw';
     loading: boolean;
     searchtext: string;
     results: any;
@@ -57,7 +59,8 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
         super(props);
         this.state = {
             source: 'nanopub',
-            pplantype: 'plan',
+            pplantype: 'step',
+            injectiontype: 'python',
             loading: false,
             searchtext: '',
             results: []
@@ -74,7 +77,11 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
         console.log('User selected:', uri);
 
         if (this.state.source === 'nanopub') {
-            this.fetchAndInjectNanopub(uri);
+            if (this.state.injectiontype === 'python') {
+                this.fetchAndInjectNanopubPython(uri);
+            } else if (this.state.injectiontype === 'raw') {
+                this.fetchAndInjectNanopubRaw(uri);
+            }
         }
     }
 
@@ -82,17 +89,15 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
      * Fetch specified nanopub (given by URI) and extract the Plex step or workflow contained within.
      * If found, inject the step(s) as one or more cells in the notebook. 
      */
-    fetchAndInjectNanopub = (uri: string): void => {
+    fetchAndInjectNanopubRaw = (uri: string): void => {
         if (this.state.pplantype === 'step' || this.state.pplantype === 'plan') {
             this.setState({loading: true});
             const queryParams = {'np_uri': uri};
             requestAPI<any>('nanostep', queryParams)
                 .then(data => {
                     console.log(data)
-                    this.props.injectCode('from fairworkflows import manualstep', '')
                     for (const code_step of data) {
-                        const manualstep_code = "manualstep('" + code_step.description + "', completed=False, byWhom='', remarks='')";
-                        this.props.injectCode('#' + code_step.description + '\n' + manualstep_code, code_step.nanopubURI);
+                        this.props.injectCode(code_step.description, code_step.nanopubURI);
                     }
                     this.setState({loading: false, results: []});
                 })
@@ -102,6 +107,20 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
                 });
         }
     }
+
+    /**
+     * Inject python code to load the FairStep or FairWorkflow described by the given URI.
+     */
+    fetchAndInjectNanopubPython = (uri: string): void => {
+        if (this.state.pplantype === 'step') {
+            const code = "from fairworkflows import FairStep\nstep = FairStep(uri='" + uri + "', from_nanopub=True)\nprint(step)";
+            this.props.injectCode(code, uri);
+        } else {
+            const code = "from fairworkflows import FairWorkflow\nworkflow = FairWorkflow(uri='" + uri + "', from_nanopub=True)\nprint(workflow)";
+            this.props.injectCode(code, uri);
+        }
+    }
+
 
     /**
      * Called when the search entry input changes. The searching is debounced,
@@ -126,6 +145,13 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
      */
     onPPlanTypeChange = (event: any): void => {
         this.setState({ pplantype: event.target.value });
+    }
+
+    /**
+     * Called when the injection type is changed (e.g. 'python' or 'raw')
+     */
+    onInjectionTypeChange = (event: any): void => {
+        this.setState({ injectiontype: event.target.value });
     }
 
     /**
@@ -193,6 +219,23 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             );
         }
 
+
+        let injection_type_selection = null;
+        if (this.state.results.length > 0 && this.state.loading === false) {
+            injection_type_selection = (
+                <label>
+                    Inject
+                    <div className="jp-select-wrapper jp-mod-focused">
+                        <select className='jp-mod-styled' value={this.state.injectiontype} onChange={this.onInjectionTypeChange}>
+                            <option key='select_python' value='python'>python</option>
+                            <option key='select_raw' value='raw'>raw</option>
+                        </select>
+                    </div>
+                </label>
+            );
+        }
+
+
         return (
             <div className="lm-Widget p-Widget">
                 <div className="jp-KeySelector jp-NotebookTools-tool p-Widget lm-Widget" >
@@ -207,14 +250,16 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
                     </label>
 
                     {pplan_type_selection}
-
                     <label>
                         Search
                         <div className="jp-select-wrapper">
                             <input type="search" id="searchentry" name="searchentry" onChange={this.onSearchEntry} value={this.state.searchtext} />
                         </div>
                     </label>
+
+                    {injection_type_selection}
                 </div>
+
                 <div className="p-Widget jp-DirListing">
                     {searcharea}
                 </div>
