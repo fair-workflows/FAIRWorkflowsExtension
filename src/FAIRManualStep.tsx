@@ -33,7 +33,7 @@ export class FAIRManualStep extends React.Component<IFairManualStepProps, IFairM
         const description = content.text;
 
         let nanopubURI = content.metadata.get('nanopubURI');
-        if (typeof nanopubURI == 'undefined') {
+        if (typeof nanopubURI === 'undefined') {
             nanopubURI = '';
         }
 
