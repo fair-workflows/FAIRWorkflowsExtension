@@ -33,7 +33,7 @@ export class FAIRWorkflowsWidget extends Widget {
             <div>
                 <FAIRSearch injectCode={this.injectCode} />
                 <FAIRManualStep injectCode={this.injectCode} getSelectedCellContents={this.getSelectedCellContents} />
-            </div>, this.node);        
+            </div>, this.node);
     }
 
     injectCode = (injectStr: string, nanopubURI: string): void => {
@@ -75,7 +75,7 @@ export class FAIRWorkflowsWidget extends Widget {
         const activeCellIndex = notebook.activeCellIndex;
         const content = {metadata: model.cells.get(activeCellIndex).metadata, text: model.cells.get(activeCellIndex).value.text};
         console.log(content);
-        
+
         return content;
     }
 

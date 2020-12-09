@@ -10,31 +10,35 @@ from urllib.parse import urldefrag
 import rdflib
 
 import fairworkflows
+import nanopub
+from nanopub import NanopubClient
 
 class NanopubSearchHandler(APIHandler):
 
     @tornado.web.authenticated
     def get(self):
 
+        client = NanopubClient()
+
         type_of_search = self.get_argument('type_of_search')
 
         if type_of_search == 'text':
             search_str = self.get_argument('search_str')
             print('Searching for', search_str)
-            results = fairworkflows.Nanopub.search_text(search_str)
+            client.find_nanopubs_with_text(search_str)
         elif type_of_search == 'pattern':
             subj = self.get_argument('subj')
             pred = self.get_argument('pred')
             obj = self.get_argument('obj')
             print('Searching for pattern', subj, pred, obj)
-            results = fairworkflows.Nanopub.search_pattern(subj=subj, pred=pred, obj=obj)
+            results = client.find_nanopubs_with_pattern(subj=subj, pred=pred, obj=obj)
         elif type_of_search == 'things':
             thing_type = self.get_argument('thing_type')
             searchterm = self.get_argument('searchterm')
             print('Searching for "thing"', thing_type, searchterm)
             if not searchterm:
                 searchterm = ' '
-            results = fairworkflows.Nanopub.search_things(thing_type=thing_type, searchterm=searchterm)
+            results = client.find_things(thing_type, searchterm=searchterm)
         else:
             raise ValueError(f'Unrecognized type_of_search, {type_of_search}')
 
@@ -51,18 +55,29 @@ class NanopublishHandler(APIHandler):
 
     @tornado.web.authenticated
     def get(self):
+        client = NanopubClient()
 
         derived_from = rdflib.term.URIRef(self.get_argument('derived_from'))
         description = self.get_argument('description')
 
-        step_uri = rdflib.term.URIRef('http://purl.org/nanostep#step')
+        # Make a new 'empty' step
+        step = fairworkflows.FairStep()
 
-        rdf = rdflib.Graph()
-        rdf.add((step_uri, rdflib.term.URIRef('http://purl.org/dc/terms/description'), rdflib.term.Literal(description)))
+        # Specify various characteristics needed to describe it
+        step.label = 'Cell from a Jupyter Lab notebook'
+        step.description = description
+        step.is_manual_task = False
 
-        published_URI = fairworkflows.Nanopub.publish(rdf, introduces_concept=step_uri, derived_from=derived_from)
+        if len(derived_from) != 0:
+            step.set_attribute(predicate=nanopub.namespaces.PROV.wasDerivedFrom, value=derived_from)
 
-        ret = json.dumps({'published_URI': published_URI})
+        # Print the RDF description of the step
+        print(step)
+
+        # Publish the step as a nanopublication for others to find
+        publication_info = step.publish_as_nanopub()
+
+        ret = json.dumps({'published_URI': publication_info['nanopub_uri']})
         self.finish(ret)
 
 def nanopublish_handler(base_url='/'):
@@ -71,18 +86,18 @@ def nanopublish_handler(base_url='/'):
 
 
 
-
 class NanopubStepHandler(APIHandler):
 
     @tornado.web.authenticated
     def get(self):
+        client = NanopubClient()
 
         np_uri = self.get_argument('np_uri')
 
         print(np_uri)
 
         # Fetch the nanopub at the given URI
-        np = fairworkflows.Nanopub.fetch(np_uri)
+        np = client.fetch(np_uri)
         print(np)
 
         # Look for first step (if exists)
@@ -95,14 +110,14 @@ class NanopubStepHandler(APIHandler):
             steps = []
             for step_uri in step_URIs:
                 print(step_uri, type(step_uri))
-                step_np = fairworkflows.Nanopub.fetch(step_uri)
+                step_np = client.fetch(step_uri)
                 steps.append({'nanopubURI': step_uri, 'description': self.get_step_from_nanopub(step_np.rdf)})
 
         else:
             # If not a workflow, return the step description in this NP
             print('No first step found - assuming this np describes a step')
             steps = [{'nanopubURI': np_uri, 'description': self.get_step_from_nanopub(np.rdf)}]
-            
+
         ret = json.dumps(steps)
         self.finish(ret)
 

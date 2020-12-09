@@ -22,8 +22,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install wheel
-        python -m pip install jupyterlab
-        python -m pip install git+git://github.com/fair-workflows/FAIRWorkbench@add_nanopub_search_things_grlc
+        python -m pip install -r requirements.txt
     - name: Build the extension
       run: |
         jlpm
