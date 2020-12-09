@@ -49,7 +49,7 @@ interface IFairSearchState {
 /**
  * A React Component adding ability to search the nanopub servers.
  * Search results are obtained through requests to the extension backend (running the FAIRWorkflowsExtension python lib)
- * Search input through the UI is debounced (triggered after 500 ms of inactivity). 
+ * Search input through the UI is debounced (triggered after 500 ms of inactivity).
  */
 export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchState> {
     debounced_search: ReturnType<typeof debounce>;
@@ -62,7 +62,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             searchtext: '',
             results: []
         };
-        
+
         this.debounced_search = debounce(this.search, 500);
     }
 
@@ -80,7 +80,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
 
     /**
      * Fetch specified nanopub (given by URI) and extract the Plex step or workflow contained within.
-     * If found, inject the step(s) as one or more cells in the notebook. 
+     * If found, inject the step(s) as one or more cells in the notebook.
      */
     fetchAndInjectNanopub = (uri: string): void => {
         if (this.state.pplantype === 'step' || this.state.pplantype === 'plan') {
@@ -106,7 +106,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
     /**
      * Called when the search entry input changes. The searching is debounced,
      * triggering after 500ms of inactivity, following this change. This is to
-     * reduce the number of search requests going out, while maintaining a 
+     * reduce the number of search requests going out, while maintaining a
      * 'real time' feel to the search.
      */
     onSearchEntry = (event: any): void => {

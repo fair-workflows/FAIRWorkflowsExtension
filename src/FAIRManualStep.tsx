@@ -30,8 +30,12 @@ export class FAIRManualStep extends React.Component<IFairManualStepProps, IFairM
 
     publish = (): void => {
         const content = this.props.getSelectedCellContents();
-        const nanopubURI = content.metadata.get('nanopubURI');
         const description = content.text;
+
+        let nanopubURI = content.metadata.get('nanopubURI');
+        if (typeof nanopubURI == 'undefined') {
+            nanopubURI = '';
+        }
 
         const queryParams = {'derived_from': nanopubURI, 'description': description};
         requestAPI<any>('nanopublish', queryParams)
@@ -41,7 +45,6 @@ export class FAIRManualStep extends React.Component<IFairManualStepProps, IFairM
             .catch(reason => {
                 console.error('Nanopublish failed:\n', reason);
             });
-        
     }
 
     onChange = (event: any): void => {
