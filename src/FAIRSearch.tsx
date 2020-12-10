@@ -113,10 +113,10 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
      */
     fetchAndInjectNanopubPython = (uri: string): void => {
         if (this.state.pplantype === 'step') {
-            const code = "from fairworkflows import FairStep\nstep = FairStep(uri='" + uri + "', from_nanopub=True)\nprint(step)";
+            const code = "from fairworkflows import FairStep\nstep = FairStep.from_nanopub(uri='" + uri + "')\nprint(step)";
             this.props.injectCode(code, uri);
         } else {
-            const code = "from fairworkflows import FairWorkflow\nworkflow = FairWorkflow(uri='" + uri + "', from_nanopub=True)\nprint(workflow)";
+            const code = "from fairworkflows import FairWorkflow\nworkflow = FairWorkflow.from_nanopub(uri='" + uri + "')\nprint(workflow)";
             this.props.injectCode(code, uri);
         }
     }
@@ -130,7 +130,9 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
      */
     onSearchEntry = (event: any): void => {
         this.setState({searchtext: event.target.value});
-        this.debounced_search();
+        if(this.state.searchtext) {
+            this.debounced_search();
+        }
     }
 
     /**
@@ -144,7 +146,8 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
      * Called when the pplan type is changed (e.g. 'step' or 'plan')
      */
     onPPlanTypeChange = (event: any): void => {
-        this.setState({ pplantype: event.target.value });
+        this.setState({ pplantype: event.target.value, results: [], searchtext: '' });
+
     }
 
     /**
@@ -219,6 +222,9 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             );
         }
 
+        if(!this.state.searchtext) {
+            searcharea = null;
+        }
 
         let injection_type_selection = null;
         if (this.state.results.length > 0 && this.state.loading === false) {
@@ -234,7 +240,6 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
                 </label>
             );
         }
-
 
         return (
             <div className="lm-Widget p-Widget">

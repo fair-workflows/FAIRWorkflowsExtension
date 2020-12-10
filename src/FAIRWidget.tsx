@@ -5,7 +5,7 @@ import { showErrorMessage } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { CodeCellModel } from '@jupyterlab/cells';
 import { FAIRSearch } from './FAIRSearch'
-import { FAIRManualStep } from './FAIRManualStep'
+import { FAIRPublish } from './FAIRPublish'
 
 /**
  * Widget that lives in the left side bar of Jupyter Lab.
@@ -32,7 +32,7 @@ export class FAIRWorkflowsWidget extends Widget {
         ReactDOM.render(
             <div>
                 <FAIRSearch injectCode={this.injectCode} />
-                <FAIRManualStep injectCode={this.injectCode} getSelectedCellContents={this.getSelectedCellContents} />
+                <FAIRPublish injectCode={this.injectCode} getSelectedCellContents={this.getSelectedCellContents} setCellMetadata={this.setCellMetadata} />
             </div>, this.node);
     }
 
@@ -65,7 +65,7 @@ export class FAIRWorkflowsWidget extends Widget {
 
     getSelectedCellContents = (): any => {
         if (!this.tracker.currentWidget) {
-            showErrorMessage('Cannot inspect cell contents without an active notebook', {});
+            console.log('Cannot inspect cell contents without an active notebook');
             return;
         }
         const notebook = this.tracker.currentWidget.content;
@@ -79,4 +79,15 @@ export class FAIRWorkflowsWidget extends Widget {
         return content;
     }
 
+    setCellMetadata = (metadata_key: string, metadata_value: string): void => {
+        if (!this.tracker.currentWidget) {
+            console.log('Cannot set metadata without an active notebook');
+            return;
+        }
+        const notebook = this.tracker.currentWidget.content;
+        const model = notebook.model;
+        const activeCellIndex = notebook.activeCellIndex;
+
+        model.cells.get(activeCellIndex).metadata.set(metadata_key, metadata_value)
+    }
 }
