@@ -113,10 +113,10 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
      */
     fetchAndInjectNanopubPython = (uri: string): void => {
         if (this.state.pplantype === 'step') {
-            const code = "from fairworkflows import FairStep\nstep = FairStep(uri='" + uri + "', from_nanopub=True)\nprint(step)";
+            const code = "from fairworkflows import FairStep\nstep = FairStep.from_nanopub(uri='" + uri + "')\nprint(step)";
             this.props.injectCode(code, uri);
         } else {
-            const code = "from fairworkflows import FairWorkflow\nworkflow = FairWorkflow(uri='" + uri + "', from_nanopub=True)\nprint(workflow)";
+            const code = "from fairworkflows import FairWorkflow\nworkflow = FairWorkflow.from_nanopub(uri='" + uri + "')\nprint(workflow)";
             this.props.injectCode(code, uri);
         }
     }
