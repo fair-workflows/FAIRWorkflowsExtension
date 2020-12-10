@@ -18,7 +18,7 @@ export async function requestAPI<T>(
         settings.baseUrl,
         'FAIRWorkflowsExtension', // API Namespace
         endPoint) + '?' + queryString;
-    
+
     console.log('requestAPI called with ' + endPoint + ' ' + init + ', ' + requestUrl);
 
     let response: Response;

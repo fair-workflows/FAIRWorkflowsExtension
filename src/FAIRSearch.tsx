@@ -57,7 +57,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
         super(props);
         this.state = {
             source: 'nanopub',
-            pplantype: 'plan',
+            pplantype: 'step',
             loading: false,
             searchtext: '',
             results: []
@@ -111,7 +111,9 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
      */
     onSearchEntry = (event: any): void => {
         this.setState({searchtext: event.target.value});
-        this.debounced_search();
+        if(this.state.searchtext) {
+            this.debounced_search();
+        }
     }
 
     /**
@@ -125,7 +127,8 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
      * Called when the pplan type is changed (e.g. 'step' or 'plan')
      */
     onPPlanTypeChange = (event: any): void => {
-        this.setState({ pplantype: event.target.value });
+        this.setState({ pplantype: event.target.value, results: [], searchtext: '' });
+
     }
 
     /**
@@ -191,6 +194,10 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
                     </div>
                 </label>
             );
+        }
+
+        if(!this.state.searchtext) {
+            searcharea = null;
         }
 
         return (
