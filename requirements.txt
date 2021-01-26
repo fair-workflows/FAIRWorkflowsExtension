@@ -1,3 +1,3 @@
-fairworkflows==0.1.9
+fairworkflows==0.2.2
 jupyterlab~=2.0
 jupyter-packaging

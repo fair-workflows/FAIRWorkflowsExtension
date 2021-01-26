@@ -42,7 +42,7 @@ class NanopubSearchHandler(APIHandler):
         else:
             raise ValueError(f'Unrecognized type_of_search, {type_of_search}')
 
-        ret = json.dumps(results)
+        ret = json.dumps(list(results))
         self.finish(ret)
 
 def nanopub_search_handler(base_url='/'):
