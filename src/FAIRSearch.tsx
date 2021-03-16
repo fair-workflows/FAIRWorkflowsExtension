@@ -60,7 +60,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
         this.state = {
             source: 'nanopub',
             pplantype: 'step',
-            injectiontype: 'python',
+            injectiontype: 'raw',
             loading: false,
             searchtext: '',
             results: []
