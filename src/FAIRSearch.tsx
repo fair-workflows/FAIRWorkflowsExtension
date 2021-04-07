@@ -40,7 +40,7 @@ interface IFairSearchProps {
 /** State of theFAIRSearch component */
 interface IFairSearchState {
     source: 'nanopub';
-    pplantype: 'step' | 'plan';
+    pplantype: 'step';
     injectiontype: 'python' | 'raw';
     loading: boolean;
     searchtext: string;
@@ -171,8 +171,6 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             endpoint = 'nanosearch';
             if (this.state.pplantype === 'step') {
                 queryParams = {type_of_search: 'things', thing_type: 'http://purl.org/net/p-plan#Step', searchterm: this.state.searchtext};
-            } else if (this.state.pplantype === 'plan') {
-                queryParams = {type_of_search: 'things', thing_type: 'http://purl.org/net/p-plan#Plan', searchterm: this.state.searchtext};
             }
         } else {
             console.error('Source is not recognised:\n', this.state.source);
@@ -215,7 +213,6 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
                     <div className="jp-select-wrapper jp-mod-focused">
                         <select className='jp-mod-styled' value={this.state.pplantype} onChange={this.onPPlanTypeChange}>
                             <option key='select_step' value='step'>#Step</option>
-                            <option key='select_plan' value='plan'>#Plan</option>
                         </select>
                     </div>
                 </label>
