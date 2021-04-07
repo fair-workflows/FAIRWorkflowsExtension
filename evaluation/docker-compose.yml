@@ -1,0 +1,12 @@
+version: "3.3"
+services:
+  jupyterlab:
+    build: ..
+    command: >
+      bash -c "setup_nanopub_profile --orcid_id https://orcid.org/0000-0000-0000-0000 --no-publish --name test1 --newkeys --no-publish &&
+      /opt/conda/bin/jupyter lab --ip=0.0.0.0 --port=8888 --allow-root /evaluation_data/introduction.ipynb"
+
+    ports:
+      - 8888:8888
+    volumes:
+      - ./evaluation_data:/evaluation_data
