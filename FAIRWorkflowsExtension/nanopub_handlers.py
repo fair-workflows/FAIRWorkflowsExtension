@@ -94,7 +94,7 @@ class NanopubStepHandler(APIHandler):
 
         np_uri = self.get_argument('np_uri')
 
-        print(np_uri)
+        print('Fetching nanopub from', np_uri)
 
         # Fetch the nanopub at the given URI
         np = client.fetch(np_uri)
@@ -111,17 +111,17 @@ class NanopubStepHandler(APIHandler):
             for step_uri in step_URIs:
                 print(step_uri, type(step_uri))
                 step_np = client.fetch(step_uri)
-                steps.append({'nanopubURI': step_uri, 'description': self.get_step_from_nanopub(step_np.rdf)})
+                steps.append({'nanopubURI': step_uri, 'description': self.get_step_from_nanopub(step_np.rdf, step_uri)})
 
         else:
             # If not a workflow, return the step description in this NP
             print('No first step found - assuming this np describes a step')
-            steps = [{'nanopubURI': np_uri, 'description': self.get_step_from_nanopub(np.rdf)}]
+            steps = [{'nanopubURI': np_uri, 'description': self.get_step_from_nanopub(np.rdf, np_uri)}]
 
         ret = json.dumps(steps)
         self.finish(ret)
 
-    def get_step_from_nanopub(self, np_rdf):
+    def get_step_from_nanopub(self, np_rdf, np_uri):
         # Get the description triple
         qres = np_rdf.query(
          """SELECT DISTINCT ?code
@@ -131,7 +131,19 @@ class NanopubStepHandler(APIHandler):
 
         qres_list = list([i for i in qres])
         if len(qres_list) > 0:
-            result = qres_list[0]
+            # Get description as string
+            result = str(qres_list[0][0])
+
+            #TODO: Find better solution than this hack to get the function name from the code.
+            func_name = None
+            for line in result.splitlines():
+                print(line, type(line))
+                line = str(line)
+                if line.startswith('def'):
+                    func_name = line.split('(')[0].split('def')[1].strip()
+                    break
+            if func_name:
+                result += "\n\n" + func_name + "._fairstep.derived_from='" + np_uri + "'\n"
         else:
             result = '# No step description found. Nanopub rdf was:\n' + np_rdf.serialize(format='trig').decode('utf-8')
 
