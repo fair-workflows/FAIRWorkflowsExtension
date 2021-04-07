@@ -77,16 +77,13 @@ export class FAIRPublish extends React.Component<IFairPublishProps, IFairPublish
         if (this.state.selectedCellSourceURI) {
             displaySourceURI = ( <div><p>Selected cell source URI:</p> <a href={this.state.selectedCellSourceURI} className="fairlink"> {this.state.selectedCellSourceURI}</a></div> );
         } else {
-            displaySourceURI = ( <div><p>Selected cell is unpublished.</p></div> );
+            displaySourceURI = ( <div><p>Origin of selected cell is unknown.</p></div> );
         }
 
         return (
             <div className="lm-Widget p-Widget">
                 <div className="jp-KeySelector jp-NotebookTools-tool p-Widget lm-Widget" >
-                    <header className="jp-RunningSessions-sectionHeader"><h2>FAIR Publish</h2></header>
-                    <label>
-                        <button type="button" onClick={this.publish}>Publish Cell</button>
-                    </label>
+                    <header className="jp-RunningSessions-sectionHeader"><h2>Origin of cell</h2></header>
                 </div>
                 <div className="jp-KeySelector jp-NotebookTools-tool p-Widget lm-Widget" >
                     {displaySourceURI}
