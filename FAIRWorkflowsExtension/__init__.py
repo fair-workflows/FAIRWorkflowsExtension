@@ -1,6 +1,7 @@
-from ._version import __version__ 
+from ._version import __version__
 from .nanopub_handlers import nanopub_search_handler, nanopublish_handler, nanopub_step_handler
 from notebook.utils import url_path_join
+
 
 def _jupyter_server_extension_paths():
     return [{
@@ -21,9 +22,8 @@ def load_jupyter_server_extension(nb_server_app):
         nanopublish_handler(base_url),
         nanopub_step_handler(base_url)
     ]
- 
+
     print('Registering handlers:', handlers)
     nb_server_app.log.info("Registering FAIRWorkflowsExtension handlers")
-    
-    web_app.add_handlers('.*$', handlers)
 
+    web_app.add_handlers('.*$', handlers)

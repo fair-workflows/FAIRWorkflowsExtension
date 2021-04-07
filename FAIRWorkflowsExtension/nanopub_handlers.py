@@ -1,4 +1,3 @@
-import asyncio
 import json
 
 from notebook.base.handlers import APIHandler
@@ -12,6 +11,7 @@ import rdflib
 import fairworkflows
 import nanopub
 from nanopub import NanopubClient
+
 
 class NanopubSearchHandler(APIHandler):
 
@@ -45,18 +45,16 @@ class NanopubSearchHandler(APIHandler):
         ret = json.dumps(list(results))
         self.finish(ret)
 
+
 def nanopub_search_handler(base_url='/'):
     endpoint = url_path_join(base_url, '/nanosearch')
     return endpoint, NanopubSearchHandler
-
 
 
 class NanopublishHandler(APIHandler):
 
     @tornado.web.authenticated
     def get(self):
-        client = NanopubClient()
-
         derived_from = rdflib.term.URIRef(self.get_argument('derived_from'))
         description = self.get_argument('description')
 
@@ -80,10 +78,10 @@ class NanopublishHandler(APIHandler):
         ret = json.dumps({'published_URI': publication_info['nanopub_uri']})
         self.finish(ret)
 
+
 def nanopublish_handler(base_url='/'):
     endpoint = url_path_join(base_url, '/nanopublish')
     return endpoint, NanopublishHandler
-
 
 
 class NanopubStepHandler(APIHandler):
@@ -134,7 +132,7 @@ class NanopubStepHandler(APIHandler):
             # Get description as string
             result = str(qres_list[0][0])
 
-            #TODO: Find better solution than this hack to get the function name from the code.
+            # TODO: Find better solution than this hack to get the function name from the code.
             func_name = None
             for line in result.splitlines():
                 print(line, type(line))
@@ -186,6 +184,7 @@ class NanopubStepHandler(APIHandler):
 
         print('uri_list', uri_list)
         return uri_list
+
 
 def nanopub_step_handler(base_url='/'):
     endpoint = url_path_join(base_url, '/nanostep')
