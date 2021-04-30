@@ -25,7 +25,8 @@ export class SearchResult extends React.Component<ISearchResultProps, {}> {
             <li key={this.props.uri} title={this.props.uri}>
                 <span className='jp-DirListing-item' onClick={this.onClick}>
                     <p>{this.props.description}</p>
-                    <p>{this.props.date}</p>
+                    <pre> </pre>
+                    <p>({this.props.date})</p>
                 </span>
             </li>
         );
