@@ -43,6 +43,7 @@ interface IFairSearchState {
     pplantype: 'step';
     injectiontype: 'python' | 'raw';
     loading: boolean;
+    searching: boolean;
     searchtext: string;
     results: any;
 }
@@ -62,6 +63,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             pplantype: 'step',
             injectiontype: 'raw',
             loading: false,
+            searching: false,
             searchtext: '',
             results: []
         };
@@ -176,12 +178,17 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             console.error('Source is not recognised:\n', this.state.source);
             return;
         }
+
+        this.setState({searching: true})
+        this.setState({results: []});
         requestAPI<any>(endpoint, queryParams)
             .then(data => {
                 this.setState({results: data});
+                this.setState({searching: false})
             })
             .catch(reason => {
                 console.error('Search failed:\n', reason);
+                this.setState({searching: false})
             });
     }
 
@@ -193,16 +200,22 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
         console.log('Rendering FAIRSearch component')
 
         // Display the results in the appropriate format for either nanopub (or other) searches
-        let searcharea = (<span className="jp-fairwidget-busy">Loading...</span>);
-        if (this.state.loading === false) {
-            let searchresults = [];
-            if (this.state.source === 'nanopub') {
-                searchresults = this.state.results.map( (c: any) => (
-                    <SearchResult key={c.id} uri={c.np} description={c.label} date={c.date} onClick={this.onResultClick} />
-                ));
-            }
+        let searcharea = (<ul className="jp-DirListing-content"><span className='jp-DirListing-item'><p>No results</p></span></ul>);
 
-            searcharea = (<ul className="jp-DirListing-content">{searchresults}</ul>);
+        if (this.state.searchtext.length > 0) {
+            if (this.state.loading === true) {
+                searcharea = (<span className="jp-fairwidget-busy">Loading...</span>);
+            } else if (this.state.searching === true) {
+            searcharea = (<span className="jp-fairwidget-busy">Searching...</span>);
+            } else if (this.state.results.length > 0) {
+                let searchresults = [];
+                if (this.state.source === 'nanopub') {
+                    searchresults = this.state.results.map( (c: any) => (
+                        <SearchResult key={c.id} uri={c.np} description={c.label} date={c.date} onClick={this.onResultClick} />
+                    ));
+                    searcharea = (<ul className="jp-DirListing-content">{searchresults}</ul>);
+                }
+            }
         }
 
         let pplan_type_selection = null;
@@ -219,12 +232,9 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             );
         }
 
-        if(!this.state.searchtext) {
-            searcharea = null;
-        }
 
         let injection_type_selection = null;
-        if (this.state.results.length > 0 && this.state.loading === false) {
+        if (this.state.results.length > 0 && this.state.loading === false && this.state.searching === false && this.state.searchtext.length > 0) {
             injection_type_selection = (
                 <label>
                     Inject
