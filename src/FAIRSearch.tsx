@@ -198,7 +198,7 @@ export class FAIRSearch extends React.Component<IFairSearchProps, IFairSearchSta
             let searchresults = [];
             if (this.state.source === 'nanopub') {
                 searchresults = this.state.results.map( (c: any) => (
-                    <SearchResult key={c.id} uri={c.np} description={c.description} date={c.date} onClick={this.onResultClick} />
+                    <SearchResult key={c.id} uri={c.np} description={c.label} date={c.date} onClick={this.onResultClick} />
                 ));
             }
 
