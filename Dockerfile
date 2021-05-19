@@ -18,10 +18,12 @@ RUN conda install openjdk
 RUN apt-get update && apt-get install -y git
 
 RUN pip install graphviz==0.14.1
+RUN pip install click==7.1.2
 
 COPY requirements.txt /app
 RUN pip install -r requirements.txt
 
+RUN pip install Pillow==8.2.0
 
 COPY style /app/style
 COPY pyproject.toml /app
