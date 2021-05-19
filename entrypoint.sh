@@ -7,6 +7,7 @@ fi
 
 if [[ -v NOTEBOOKDIR ]]; then
     JLDIR="--notebook-dir=${NOTEBOOKDIR}"
+    cp -r /root/.nanopub ${NOTEBOOKDIR}/.nanopub
 fi
 
 if [[ -v PASSWDHASH ]]; then
