@@ -39,12 +39,12 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@jupyterlab/application": "^2.0.0",
-    "@jupyterlab/coreutils": "^4.0.0",
-    "@jupyterlab/notebook": "^2.0.0",
-    "@jupyterlab/services": "^5.0.0",
-    "react": "~16.9.0",
-    "react-dom": "~16.9.0",
+    "@jupyterlab/application": "^3.0.0",
+    "@jupyterlab/coreutils": "^5.0.0",
+    "@jupyterlab/notebook": "^3.0.0",
+    "@jupyterlab/services": "^6.0.0",
+    "react": "~17.0.1",
+    "react-dom": "~17.0.1",
     "ts-debounce": "^2.0.1"
   },
   "devDependencies": {
