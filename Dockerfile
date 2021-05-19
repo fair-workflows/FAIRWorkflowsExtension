@@ -6,8 +6,6 @@ ENV PYTHONIOENCODING=utf-8
 RUN mkdir /app
 WORKDIR /app
 
-
-#RUN conda update -n base -c defaults conda
 RUN conda install -c conda-forge jupyterlab
 
 RUN conda install -c conda-forge nodejs=12
@@ -45,6 +43,8 @@ RUN jlpm build
 RUN jupyter-labextension link .
 RUN jlpm build
 RUN jupyter-lab build
+
+RUN conda install -c conda-forge python-graphviz
 
 COPY entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
