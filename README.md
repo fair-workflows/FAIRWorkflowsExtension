@@ -1,6 +1,7 @@
 # FAIRWorkflowsExtension
 
 ![Github Actions Status](https://github.com/fair-workflows/FAIRWorkflowsExtension/workflows/Build/badge.svg)
+[![DOI](https://zenodo.org/badge/257542274.svg)](https://zenodo.org/badge/latestdoi/257542274)
 [![fair-software.eu](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8B%20%20%E2%97%8F%20%20%E2%97%8B-orange)](https://fair-software.eu)
 
 A Jupyterlab extension for composing and nanopublishing FAIR workflows, with a mixture of manual and computational tasks. 
